@@ -1,0 +1,29 @@
+---
+version: "3.9"
+services:
+  whisparr:
+    image: hotio/whisparr:latest@sha256:6f7f2f759979d96b177d891dae131716f732048790c2252c660566ceb0adbdad
+    container_name: whisparr
+    depends_on:
+      - transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ./test.sh:/scripts/test.sh
+      - ./config.xml:/config/config.xml
+    ports:
+      - 6969:6969
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", " http://localhost:6969/system/status"]
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    ports:
+      - 9091:9091
