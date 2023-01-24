@@ -2,10 +2,9 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
-	"github.com/devopsarr/terraform-provider-whisparr/tools"
+	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -137,22 +136,9 @@ func (r CustomFormatResource) getSpecificationSchema() schema.Schema {
 }
 
 func (r *CustomFormatResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
+	if client := helpers.ResourceConfigure(ctx, req, resp); client != nil {
+		r.client = client
 	}
-
-	client, ok := req.ProviderData.(*whisparr.APIClient)
-	if !ok {
-		resp.Diagnostics.AddError(
-			tools.UnexpectedResourceConfigureType,
-			fmt.Sprintf("Expected *whisparr.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = client
 }
 
 func (r *CustomFormatResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -170,7 +156,7 @@ func (r *CustomFormatResource) Create(ctx context.Context, req resource.CreateRe
 
 	response, _, err := r.client.CustomFormatApi.CreateCustomFormat(ctx).CustomFormatResource(*request).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to create %s, got error: %s", customFormatResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Create, customFormatResourceName, err))
 
 		return
 	}
@@ -197,7 +183,7 @@ func (r *CustomFormatResource) Read(ctx context.Context, req resource.ReadReques
 	// Get CustomFormat current value
 	response, _, err := r.client.CustomFormatApi.GetCustomFormatById(ctx, int32(client.ID.ValueInt64())).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to read %s, got error: %s", customFormatResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, customFormatResourceName, err))
 
 		return
 	}
@@ -226,7 +212,7 @@ func (r *CustomFormatResource) Update(ctx context.Context, req resource.UpdateRe
 
 	response, _, err := r.client.CustomFormatApi.UpdateCustomFormat(ctx, strconv.Itoa(int(request.GetId()))).CustomFormatResource(*request).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to update %s, got error: %s", customFormatResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Update, customFormatResourceName, err))
 
 		return
 	}
@@ -252,7 +238,7 @@ func (r *CustomFormatResource) Delete(ctx context.Context, req resource.DeleteRe
 	// Delete CustomFormat current value
 	_, err := r.client.CustomFormatApi.DeleteCustomFormat(ctx, int32(client.ID.ValueInt64())).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to read %s, got error: %s", customFormatResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, customFormatResourceName, err))
 
 		return
 	}
@@ -262,19 +248,8 @@ func (r *CustomFormatResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *CustomFormatResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-	id, err := strconv.Atoi(req.ID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			tools.UnexpectedImportIdentifier,
-			fmt.Sprintf("Expected import identifier with format: ID. Got: %q", req.ID),
-		)
-
-		return
-	}
-
-	tflog.Trace(ctx, "imported "+customFormatResourceName+": "+strconv.Itoa(id))
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	helpers.ImportStatePassthroughIntID(ctx, path.Root("id"), req, resp)
+	tflog.Trace(ctx, "imported "+customFormatResourceName+": "+req.ID)
 }
 
 func (c *CustomFormat) write(ctx context.Context, customFormat *whisparr.CustomFormatResource) {
@@ -306,13 +281,13 @@ func (s *Specification) writeFields(fields []*whisparr.Field) {
 		}
 
 		if slices.Contains(customFormatStringFields, f.GetName()) {
-			tools.WriteStringField(f, s)
+			helpers.WriteStringField(f, s)
 
 			continue
 		}
 
 		if slices.Contains(customFormatIntFields, f.GetName()) {
-			tools.WriteIntField(f, s)
+			helpers.WriteIntField(f, s)
 
 			continue
 		}
@@ -353,13 +328,13 @@ func (s *Specification) readFields() []*whisparr.Field {
 	var output []*whisparr.Field
 
 	for _, i := range customFormatIntFields {
-		if field := tools.ReadIntField(i, s); field != nil {
+		if field := helpers.ReadIntField(i, s); field != nil {
 			output = append(output, field)
 		}
 	}
 
 	for _, str := range customFormatStringFields {
-		if field := tools.ReadStringField(str, s); field != nil {
+		if field := helpers.ReadStringField(str, s); field != nil {
 			output = append(output, field)
 		}
 	}

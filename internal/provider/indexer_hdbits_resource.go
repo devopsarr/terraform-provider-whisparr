@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/devopsarr/terraform-provider-whisparr/tools"
+	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -223,22 +223,9 @@ func (r *IndexerHdbitsResource) Schema(ctx context.Context, req resource.SchemaR
 }
 
 func (r *IndexerHdbitsResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
+	if client := helpers.ResourceConfigure(ctx, req, resp); client != nil {
+		r.client = client
 	}
-
-	client, ok := req.ProviderData.(*whisparr.APIClient)
-	if !ok {
-		resp.Diagnostics.AddError(
-			tools.UnexpectedResourceConfigureType,
-			fmt.Sprintf("Expected *whisparr.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = client
 }
 
 func (r *IndexerHdbitsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -256,7 +243,7 @@ func (r *IndexerHdbitsResource) Create(ctx context.Context, req resource.CreateR
 
 	response, _, err := r.client.IndexerApi.CreateIndexer(ctx).IndexerResource(*request).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to create %s, got error: %s", indexerHdbitsResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Create, indexerHdbitsResourceName, err))
 
 		return
 	}
@@ -280,7 +267,7 @@ func (r *IndexerHdbitsResource) Read(ctx context.Context, req resource.ReadReque
 	// Get IndexerHdbits current value
 	response, _, err := r.client.IndexerApi.GetIndexerById(ctx, int32(indexer.ID.ValueInt64())).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to read %s, got error: %s", indexerHdbitsResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, indexerHdbitsResourceName, err))
 
 		return
 	}
@@ -306,7 +293,7 @@ func (r *IndexerHdbitsResource) Update(ctx context.Context, req resource.UpdateR
 
 	response, _, err := r.client.IndexerApi.UpdateIndexer(ctx, strconv.Itoa(int(request.GetId()))).IndexerResource(*request).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to update "+indexerHdbitsResourceName+", got error: %s", err))
+		resp.Diagnostics.AddError(helpers.ClientError, fmt.Sprintf("Unable to update "+indexerHdbitsResourceName+", got error: %s", err))
 
 		return
 	}
@@ -329,7 +316,7 @@ func (r *IndexerHdbitsResource) Delete(ctx context.Context, req resource.DeleteR
 	// Delete IndexerHdbits current value
 	_, err := r.client.IndexerApi.DeleteIndexer(ctx, int32(indexer.ID.ValueInt64())).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to read %s, got error: %s", indexerHdbitsResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, indexerHdbitsResourceName, err))
 
 		return
 	}
@@ -339,19 +326,8 @@ func (r *IndexerHdbitsResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 func (r *IndexerHdbitsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-	id, err := strconv.Atoi(req.ID)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			tools.UnexpectedImportIdentifier,
-			fmt.Sprintf("Expected import identifier with format: ID. Got: %q", req.ID),
-		)
-
-		return
-	}
-
-	tflog.Trace(ctx, "imported "+indexerHdbitsResourceName+": "+strconv.Itoa(id))
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	helpers.ImportStatePassthroughIntID(ctx, path.Root("id"), req, resp)
+	tflog.Trace(ctx, "imported "+indexerHdbitsResourceName+": "+req.ID)
 }
 
 func (i *IndexerHdbits) write(ctx context.Context, indexer *whisparr.IndexerResource) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/devopsarr/terraform-provider-whisparr/tools"
+	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -67,22 +67,9 @@ func (d *RootFolderDataSource) Schema(ctx context.Context, req datasource.Schema
 }
 
 func (d *RootFolderDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
+	if client := helpers.DataSourceConfigure(ctx, req, resp); client != nil {
+		d.client = client
 	}
-
-	client, ok := req.ProviderData.(*whisparr.APIClient)
-	if !ok {
-		resp.Diagnostics.AddError(
-			tools.UnexpectedDataSourceConfigureType,
-			fmt.Sprintf("Expected *whisparr.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	d.client = client
 }
 
 func (d *RootFolderDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -96,7 +83,7 @@ func (d *RootFolderDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	// Get rootfolders current value
 	response, _, err := d.client.RootFolderApi.ListRootFolder(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(tools.ClientError, fmt.Sprintf("Unable to read %s, got error: %s", rootFolderDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, rootFolderDataSourceName, err))
 
 		return
 	}
@@ -104,7 +91,7 @@ func (d *RootFolderDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	// Map response body to resource schema attribute
 	rootFolder, err := findRootFolder(folder.Path.ValueString(), response)
 	if err != nil {
-		resp.Diagnostics.AddError(tools.DataSourceError, fmt.Sprintf("Unable to find %s, got error: %s", rootFolderDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.DataSourceError, fmt.Sprintf("Unable to find %s, got error: %s", rootFolderDataSourceName, err))
 
 		return
 	}
@@ -121,5 +108,5 @@ func findRootFolder(path string, folders []*whisparr.RootFolderResource) (*whisp
 		}
 	}
 
-	return nil, tools.ErrDataNotFoundError(rootFolderDataSourceName, "path", path)
+	return nil, helpers.ErrDataNotFoundError(rootFolderDataSourceName, "path", path)
 }
