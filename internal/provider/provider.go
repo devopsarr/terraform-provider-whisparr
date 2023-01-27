@@ -178,6 +178,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewImportListRSSResource,
 		NewImportListStevenluResource,
 		NewImportListStevenlu2Resource,
+		NewImportListTMDBCollectionResource,
 		NewImportListTMDBCompanyResource,
 		NewImportListTMDBKeywordResource,
 		NewImportListTMDBListResource,

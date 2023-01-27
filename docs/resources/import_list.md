@@ -62,6 +62,7 @@ resource "whisparr_import_list" "example" {
 - `cast_sound` (Boolean) Include cast sound.
 - `cast_writing` (Boolean) Include cast writing.
 - `certification` (String) Certification.
+- `collection_id` (String) Collection ID.
 - `company_id` (String) Company ID.
 - `enable_auto` (Boolean) Enable automatic add flag.
 - `enabled` (Boolean) Enabled flag.

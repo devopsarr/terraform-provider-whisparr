@@ -30,7 +30,7 @@ var (
 var (
 	importListBoolFields     = []string{"onlyActive", "personCast", "personCastDirector", "personCastProducer", "personCastSound", "personCastWriting"}
 	importListIntFields      = []string{"port", "source", "minScore", "tMDbListType", "listType", "limit", "traktListType", "languageCode"}
-	importListStringFields   = []string{"baseUrl", "urlBase", "link", "apiKey", "url", "accessToken", "refreshToken", "expires", "companyId", "keywordId", "listId", "personId", "accountId", "authUser", "username", "listname", "traktAdditionalParameters", "tmdbCertification", "genres", "years", "rating", "minVoteAverage", "minVotes", "certification", "includeGenreIds", "excludeGenreIds"}
+	importListStringFields   = []string{"baseUrl", "urlBase", "link", "apiKey", "url", "accessToken", "refreshToken", "expires", "companyId", "collectionId", "keywordId", "listId", "personId", "accountId", "authUser", "username", "listname", "traktAdditionalParameters", "tmdbCertification", "genres", "years", "rating", "minVoteAverage", "minVotes", "certification", "includeGenreIds", "excludeGenreIds"}
 	importListIntSliceFields = []string{"profileIds", "tagIds"}
 )
 
@@ -69,6 +69,7 @@ type ImportList struct {
 	Listname                  types.String `tfsdk:"listname"`
 	KeywordID                 types.String `tfsdk:"keyword_id"`
 	CompanyID                 types.String `tfsdk:"company_id"`
+	CollectionID              types.String `tfsdk:"collection_id"`
 	ListID                    types.String `tfsdk:"list_id"`
 	PersonID                  types.String `tfsdk:"person_id"`
 	AccountID                 types.String `tfsdk:"account_id"`
@@ -289,6 +290,11 @@ func (r *ImportListResource) Schema(ctx context.Context, req resource.SchemaRequ
 			},
 			"company_id": schema.StringAttribute{
 				MarkdownDescription: "Company ID.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"collection_id": schema.StringAttribute{
+				MarkdownDescription: "Collection ID.",
 				Optional:            true,
 				Computed:            true,
 			},
