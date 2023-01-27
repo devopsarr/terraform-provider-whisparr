@@ -168,6 +168,9 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewIndexerTorznabResource,
 		NewRestrictionResource,
 
+		// Import Lists
+		NewImportListResource,
+
 		// Media Management
 		NewMediaManagementResource,
 		NewNamingResource,
