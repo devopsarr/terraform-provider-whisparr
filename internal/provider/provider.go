@@ -204,6 +204,9 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewMetadataWdtvResource,
 		NewMetadataConfigResource,
 
+		// Movies
+		NewMovieResource,
+
 		// Notifications
 		NewNotificationResource,
 		NewNotificationBoxcarResource,
@@ -273,6 +276,10 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewMetadataConfigDataSource,
 		NewMetadataDataSource,
 		NewMetadataConsumersDataSource,
+
+		// Movies
+		NewMovieDataSource,
+		NewMoviesDataSource,
 
 		// Notifications
 		NewNotificationDataSource,
