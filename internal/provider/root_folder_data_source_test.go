@@ -17,22 +17,19 @@ func TestAccRootFolderDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: testAccRootFolderDataSourceConfig,
+				PreConfig: rootFolderDSInit,
+				Config:    testAccRootFolderDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.whisparr_root_folder.test", "id"),
-					resource.TestCheckResourceAttr("data.whisparr_root_folder.test", "path", "/tmp")),
+					resource.TestCheckResourceAttr("data.whisparr_root_folder.test", "path", "/config")),
 			},
 		},
 	})
 }
 
 const testAccRootFolderDataSourceConfig = `
-resource "whisparr_root_folder" "test" {
-	path = "/tmp"
-}
-
 data "whisparr_root_folder" "test" {
-	path = whisparr_root_folder.test.path
+	path = "/config"
 }
 `
 
