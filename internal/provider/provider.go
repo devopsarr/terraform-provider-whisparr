@@ -197,6 +197,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewRootFolderResource,
 
 		// Metadata
+		NewMetadataResource,
 		NewMetadataConfigResource,
 
 		// Notifications
