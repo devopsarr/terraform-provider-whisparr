@@ -22,7 +22,7 @@ func TestAccImportListsDataSource(t *testing.T) {
 			{
 				Config: testAccImportListsDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckTypeSetElemNestedAttrs("data.whisparr_import_lists.test", "import_lists.*", map[string]string{"base_url": "http://127.0.0.1:7878"}),
+					resource.TestCheckTypeSetElemNestedAttrs("data.whisparr_import_lists.test", "import_lists.*", map[string]string{"base_url": "http://127.0.0.1:6969"}),
 				),
 			},
 		},

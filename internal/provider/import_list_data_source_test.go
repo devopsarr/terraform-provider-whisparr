@@ -38,7 +38,7 @@ resource "whisparr_import_list" "test" {
 	name = "importListDataTest"
 	implementation = "WhisparrImport"
 	config_contract = "WhisparrSettings"
-	base_url = "http://127.0.0.1:7878"
+	base_url = "http://127.0.0.1:6969"
 	api_key = "testAPIKey"
 }
 

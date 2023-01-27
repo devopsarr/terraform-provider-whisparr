@@ -52,7 +52,7 @@ func testAccImportListWhisparrResourceConfig(name, monitor string) string {
 		minimum_availability = "tba"
 		quality_profile_id = 1
 		name = "%s"
-		base_url = "http://127.0.0.1:7878"
+		base_url = "http://127.0.0.1:6969"
 		api_key = "testAPIKey"
 		tag_ids = [1,2]
 		profile_ids = [1]
