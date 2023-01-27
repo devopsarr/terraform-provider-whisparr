@@ -42,6 +42,40 @@ func TestAccQualityProfileResource(t *testing.T) {
 
 func testAccQualityProfileResourceConfig(name string) string {
 	return fmt.Sprintf(`
+	resource "whisparr_custom_format" "test" {
+		include_custom_format_when_renaming = false
+		name = "QualityFormatTest"
+		
+		specifications = [
+			{
+				name = "Surround Sound"
+				implementation = "ReleaseTitleSpecification"
+				negate = false
+				required = false
+				value = "DTS.?(HD|ES|X(?!\\D))|TRUEHD|ATMOS|DD(\\+|P).?([5-9])|EAC3.?([5-9])"
+			},
+			{
+				name = "Arabic"
+				implementation = "LanguageSpecification"
+				negate = false
+				required = false
+				value = "31"
+			},
+			{
+				name = "Size"
+				implementation = "SizeSpecification"
+				negate = false
+				required = false
+				min = 0
+				max = 100
+			}
+		]	
+	}
+
+	data "whisparr_custom_formats" "test" {
+		depends_on = [whisparr_custom_format.test]
+	}
+
 	resource "whisparr_quality_profile" "test" {
 		name            = "%s"
 		upgrade_allowed = true
@@ -70,8 +104,26 @@ func testAccQualityProfileResourceConfig(name string) string {
 						resolution = 2160
 					}
 				]
+			},
+			{
+				qualities = [
+					{
+						id = 19
+						name = "Bluray-2160p"
+						source = "bluray"
+						resolution = 2160
+					}
+				]
 			}
 		]
-	}
-	`, name)
+
+		format_items = [
+			for format in data.whisparr_custom_formats.test.custom_formats :
+			{
+				name   = format.name
+				format = format.id
+				score  = 0
+			}
+		]
+	}`, name)
 }

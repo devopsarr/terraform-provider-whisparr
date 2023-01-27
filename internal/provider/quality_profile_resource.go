@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -68,8 +69,8 @@ type FormatItem struct {
 	Score  types.Int64  `tfsdk:"score"`
 }
 
-// Language is part of QualityProfile.
-type Language struct {
+// QualityLanguage is part of QualityProfile.
+type QualityLanguage struct {
 	Name types.String `tfsdk:"name"`
 	ID   types.Int64  `tfsdk:"id"`
 }
@@ -116,7 +117,7 @@ func (r *QualityProfileResource) Schema(ctx context.Context, req resource.Schema
 			"language": schema.SingleNestedAttribute{
 				MarkdownDescription: "Language.",
 				Required:            true,
-				Attributes:          r.getLanguageSchema().Attributes,
+				Attributes:          r.getQualityLanguageSchema().Attributes,
 			},
 			"quality_groups": schema.SetNestedAttribute{
 				MarkdownDescription: "Quality groups.",
@@ -168,21 +169,34 @@ func (r QualityProfileResource) getQualitySchema() schema.Schema {
 				MarkdownDescription: "Quality ID.",
 				Optional:            true,
 				Computed:            true,
+				// plan on uptate is unknown for 1 item array
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"resolution": schema.Int64Attribute{
 				MarkdownDescription: "Resolution.",
 				Optional:            true,
 				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Quality name.",
 				Optional:            true,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"source": schema.StringAttribute{
 				MarkdownDescription: "Source.",
 				Optional:            true,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -210,7 +224,7 @@ func (r QualityProfileResource) getFormatItemsSchema() schema.Schema {
 	}
 }
 
-func (r QualityProfileResource) getLanguageSchema() schema.Schema {
+func (r QualityProfileResource) getQualityLanguageSchema() schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
@@ -346,21 +360,22 @@ func (p *QualityProfile) write(ctx context.Context, profile *whisparr.QualityPro
 	p.QualityGroups = types.SetValueMust(QualityProfileResource{}.getQualityGroupSchema().Type(), nil)
 	p.FormatItems = types.SetValueMust(QualityProfileResource{}.getFormatItemsSchema().Type(), nil)
 
-	qualityGroups := make([]QualityGroup, len(profile.Items))
+	qualityGroups := make([]QualityGroup, len(profile.GetItems()))
 	for n, g := range profile.GetItems() {
 		qualityGroups[n].write(ctx, g)
 	}
 
-	formatItems := make([]FormatItem, len(profile.FormatItems))
-	for n, f := range profile.FormatItems {
+	formatItems := make([]FormatItem, len(profile.GetFormatItems()))
+	for n, f := range profile.GetFormatItems() {
 		formatItems[n].write(f)
 	}
 
-	language := Language{}
+	language := QualityLanguage{}
 	language.write(profile.Language)
-	tfsdk.ValueFrom(ctx, language, QualityProfileResource{}.getLanguageSchema().Type(), &p.Language)
+	tfsdk.ValueFrom(ctx, language, QualityProfileResource{}.getQualityLanguageSchema().Type(), &p.Language)
 
 	tfsdk.ValueFrom(ctx, qualityGroups, p.QualityGroups.Type(ctx), &p.QualityGroups)
+	tfsdk.ValueFrom(ctx, formatItems, p.FormatItems.Type(ctx), &p.FormatItems)
 }
 
 func (q *QualityGroup) write(ctx context.Context, group *whisparr.QualityProfileQualityItemResource) {
@@ -370,9 +385,7 @@ func (q *QualityGroup) write(ctx context.Context, group *whisparr.QualityProfile
 		qualities []Quality
 	)
 
-	if len(group.Items) == 0 {
-		name = group.Quality.GetName()
-		id = int64(group.Quality.GetId())
+	if len(group.GetItems()) == 0 {
 		qualities = []Quality{{
 			ID:         types.Int64Value(int64(group.Quality.GetId())),
 			Name:       types.StringValue(group.Quality.GetName()),
@@ -408,7 +421,7 @@ func (f *FormatItem) write(format *whisparr.ProfileFormatItemResource) {
 	f.Score = types.Int64Value(int64(format.GetScore()))
 }
 
-func (l *Language) write(language *whisparr.Language) {
+func (l *QualityLanguage) write(language *whisparr.Language) {
 	l.Name = types.StringValue(language.GetName())
 	l.ID = types.Int64Value(int64(language.GetId()))
 }
@@ -422,10 +435,12 @@ func (p *QualityProfile) read(ctx context.Context) *whisparr.QualityProfileResou
 		q := make([]Quality, len(g.Qualities.Elements()))
 		tfsdk.ValueAs(ctx, g.Qualities, &q)
 
-		if len(q) == 0 {
+		if len(q) == 1 {
 			quality := whisparr.NewQuality()
-			quality.SetId(int32(g.ID.ValueInt64()))
-			quality.SetName(g.Name.ValueString())
+			quality.SetId(int32(q[0].ID.ValueInt64()))
+			quality.SetName(q[0].Name.ValueString())
+			quality.SetSource(whisparr.Source(q[0].Source.ValueString()))
+			quality.SetResolution(int32(q[0].Resolution.ValueInt64()))
 
 			item := whisparr.NewQualityProfileQualityItemResource()
 			item.SetAllowed(true)
@@ -457,7 +472,7 @@ func (p *QualityProfile) read(ctx context.Context) *whisparr.QualityProfileResou
 		formatItems[n] = f.read()
 	}
 
-	language := Language{}
+	language := QualityLanguage{}
 	tfsdk.ValueAs(ctx, p.Language, &language)
 
 	profile := whisparr.NewQualityProfileResource()
@@ -497,7 +512,7 @@ func (f *FormatItem) read() *whisparr.ProfileFormatItemResource {
 	return formatItem
 }
 
-func (l *Language) read() *whisparr.Language {
+func (l *QualityLanguage) read() *whisparr.Language {
 	language := whisparr.NewLanguage()
 	language.SetId(int32(l.ID.ValueInt64()))
 	language.SetName(l.Name.ValueString())
