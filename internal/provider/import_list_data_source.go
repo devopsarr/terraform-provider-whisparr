@@ -180,6 +180,10 @@ func (d *ImportListDataSource) Schema(ctx context.Context, req datasource.Schema
 				MarkdownDescription: "Company ID.",
 				Computed:            true,
 			},
+			"collection_id": schema.StringAttribute{
+				MarkdownDescription: "Collection ID.",
+				Computed:            true,
+			},
 			"keyword_id": schema.StringAttribute{
 				MarkdownDescription: "Keyword ID.",
 				Computed:            true,

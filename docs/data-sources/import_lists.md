@@ -41,6 +41,7 @@ Read-Only:
 - `cast_sound` (Boolean) Include cast sound.
 - `cast_writing` (Boolean) Include cast writing.
 - `certification` (String) Certification.
+- `collection_id` (String) Collection ID.
 - `company_id` (String) Company ID.
 - `config_contract` (String) ImportList configuration template.
 - `enable_auto` (Boolean) Enable automatic add flag.
