@@ -173,6 +173,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewImportListTraktListResource,
 		NewImportListTraktPopularResource,
 		NewImportListTraktUserResource,
+		NewImportListWhisparrResource,
 
 		// Media Management
 		NewMediaManagementResource,
