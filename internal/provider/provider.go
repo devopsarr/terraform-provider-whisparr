@@ -263,6 +263,9 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewRootFolderDataSource,
 		NewRootFoldersDataSource,
 
+		// Metadata
+		NewMetadataConfigDataSource,
+
 		// Notifications
 		NewNotificationDataSource,
 		NewNotificationsDataSource,
