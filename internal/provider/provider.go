@@ -227,6 +227,9 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewRestrictionDataSource,
 		NewRestrictionsDataSource,
 
+		// Import Lists
+		NewImportListsDataSource,
+
 		// Media Management
 		NewMediaManagementDataSource,
 		NewNamingDataSource,
