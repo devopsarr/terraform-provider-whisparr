@@ -168,6 +168,29 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewIndexerTorznabResource,
 		NewRestrictionResource,
 
+		// Import Lists
+		NewImportListConfigResource,
+		NewImportListResource,
+		NewImportListCouchPotatoResource,
+		NewImportListCustomResource,
+		NewImportListIMDBResource,
+		NewImportListPlexResource,
+		NewImportListRSSResource,
+		NewImportListStevenluResource,
+		NewImportListStevenlu2Resource,
+		NewImportListTMDBCollectionResource,
+		NewImportListTMDBCompanyResource,
+		NewImportListTMDBKeywordResource,
+		NewImportListTMDBListResource,
+		NewImportListTMDBPersonResource,
+		NewImportListTMDBPopularResource,
+		NewImportListTMDBUserResource,
+		NewImportListTraktListResource,
+		NewImportListTraktPopularResource,
+		NewImportListTraktUserResource,
+		NewImportListWhisparrResource,
+		NewImportListExclusionResource,
+
 		// Media Management
 		NewMediaManagementResource,
 		NewNamingResource,
@@ -223,6 +246,13 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewIndexersDataSource,
 		NewRestrictionDataSource,
 		NewRestrictionsDataSource,
+
+		// Import Lists
+		NewImportListConfigDataSource,
+		NewImportListDataSource,
+		NewImportListsDataSource,
+		NewImportListExclusionDataSource,
+		NewImportListExclusionsDataSource,
 
 		// Media Management
 		NewMediaManagementDataSource,

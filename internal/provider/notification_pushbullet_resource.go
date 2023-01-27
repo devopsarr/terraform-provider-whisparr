@@ -321,8 +321,7 @@ func (n *NotificationPushbullet) write(ctx context.Context, notification *whispa
 }
 
 func (n *NotificationPushbullet) read(ctx context.Context) *whisparr.NotificationResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(n.Tags.Elements()))
 	tfsdk.ValueAs(ctx, n.Tags, &tags)
 
 	notification := whisparr.NewNotificationResource()

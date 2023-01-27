@@ -173,7 +173,7 @@ func (d *QualityProfilesDataSource) Read(ctx context.Context, req datasource.Rea
 	// Get qualityprofiles current value
 	response, _, err := d.client.QualityProfileApi.ListQualityProfile(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, qualityProfilesDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.List, qualityProfilesDataSourceName, err))
 
 		return
 	}

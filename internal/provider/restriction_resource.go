@@ -194,8 +194,7 @@ func (r *Restriction) write(ctx context.Context, restriction *whisparr.Restricti
 }
 
 func (r *Restriction) read(ctx context.Context) *whisparr.RestrictionResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(r.Tags.Elements()))
 	tfsdk.ValueAs(ctx, r.Tags, &tags)
 
 	restriction := whisparr.NewRestrictionResource()

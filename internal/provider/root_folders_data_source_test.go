@@ -15,13 +15,13 @@ func TestAccRootFoldersDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create a root folder to have a value to check
 			{
-				Config: testAccRootFolderResourceConfig("/config/asp"),
+				Config: testAccRootFolderResourceConfig("/tmp"),
 			},
 			// Read testing
 			{
 				Config: testAccRootFoldersDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckTypeSetElemNestedAttrs("data.whisparr_root_folders.test", "root_folders.*", map[string]string{"path": "/config/asp"}),
+					resource.TestCheckTypeSetElemNestedAttrs("data.whisparr_root_folders.test", "root_folders.*", map[string]string{"path": "/tmp"}),
 				),
 			},
 		},

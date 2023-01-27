@@ -349,8 +349,7 @@ func (d *DownloadClientDeluge) write(ctx context.Context, downloadClient *whispa
 }
 
 func (d *DownloadClientDeluge) read(ctx context.Context) *whisparr.DownloadClientResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(d.Tags.Elements()))
 	tfsdk.ValueAs(ctx, d.Tags, &tags)
 
 	client := whisparr.NewDownloadClientResource()

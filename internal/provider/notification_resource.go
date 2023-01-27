@@ -748,8 +748,7 @@ func (n *Notification) writeFields(ctx context.Context, fields []*whisparr.Field
 }
 
 func (n *Notification) read(ctx context.Context) *whisparr.NotificationResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(n.Tags.Elements()))
 	tfsdk.ValueAs(ctx, n.Tags, &tags)
 
 	notification := whisparr.NewNotificationResource()

@@ -435,8 +435,7 @@ func (i *Indexer) writeFields(ctx context.Context, fields []*whisparr.Field) {
 }
 
 func (i *Indexer) read(ctx context.Context) *whisparr.IndexerResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(i.Tags.Elements()))
 	tfsdk.ValueAs(ctx, i.Tags, &tags)
 
 	indexer := whisparr.NewIndexerResource()
