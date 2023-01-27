@@ -8,8 +8,8 @@ resource "whisparr_import_list" "example" {
   root_folder_path     = whisparr_root_folder.example.path
   quality_profile_id   = whisparr_quality_profile.example.id
   name                 = "Example"
-  implementation       = "RadarrImport"
-  config_contract      = "RadarrSettings"
+  implementation       = "WhisparrImport"
+  config_contract      = "WhisparrSettings"
   tags                 = [1, 2]
 
   tag_ids     = [1, 2]
