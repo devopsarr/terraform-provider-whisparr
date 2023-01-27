@@ -26,7 +26,7 @@ var (
 )
 
 var (
-	metadataBoolFields = []string{"movieMetadata", "movieMetadataURL", "movieImages", "useMovieNfo", "addCollectionName"}
+	metadataBoolFields = []string{"movieMetadata", "movieMetadataURL", "movieImages", "useMovieNfo"}
 	metadataIntFields  = []string{"movieMetadataLanguage"}
 )
 
@@ -52,7 +52,6 @@ type Metadata struct {
 	MovieMetadataURL      types.Bool   `tfsdk:"movie_metadata_url"`
 	MovieImages           types.Bool   `tfsdk:"movie_images"`
 	UseMovieNfo           types.Bool   `tfsdk:"use_movie_nfo"`
-	AddCollectionName     types.Bool   `tfsdk:"add_collection_name"`
 }
 
 func (r *MetadataResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,11 +93,6 @@ func (r *MetadataResource) Schema(ctx context.Context, req resource.SchemaReques
 				},
 			},
 			// Field values
-			"add_collection_name": schema.BoolAttribute{
-				MarkdownDescription: "Add collection name flag.",
-				Optional:            true,
-				Computed:            true,
-			},
 			"use_movie_nfo": schema.BoolAttribute{
 				MarkdownDescription: "Use movie nfo flag.",
 				Optional:            true,

@@ -36,7 +36,6 @@ resource "whisparr_metadata" "example" {
 
 ### Optional
 
-- `add_collection_name` (Boolean) Add collection name flag.
 - `enable` (Boolean) Enable flag.
 - `movie_images` (Boolean) Movie images flag.
 - `movie_metadata` (Boolean) Movie metafata flag.

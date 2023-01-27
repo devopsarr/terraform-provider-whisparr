@@ -61,10 +61,6 @@ func (d *MetadataDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Computed:            true,
 			},
 			// Field values
-			"add_collection_name": schema.BoolAttribute{
-				MarkdownDescription: "Add collection name flag.",
-				Computed:            true,
-			},
 			"use_movie_nfo": schema.BoolAttribute{
 				MarkdownDescription: "Use movie nfo flag.",
 				Computed:            true,

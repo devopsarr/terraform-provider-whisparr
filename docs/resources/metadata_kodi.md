@@ -28,7 +28,6 @@ resource "whisparr_metadata_kodi" "example" {
 
 ### Required
 
-- `add_collection_name` (Boolean) Add collection name flag.
 - `movie_images` (Boolean) Movie images flag.
 - `movie_metadata` (Boolean) Movie metafata flag.
 - `movie_metadata_language` (Number) Movie metadata language.

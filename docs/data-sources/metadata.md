@@ -27,7 +27,6 @@ data "whisparr_metadata" "example" {
 
 ### Read-Only
 
-- `add_collection_name` (Boolean) Add collection name flag.
 - `config_contract` (String) Metadata configuration template.
 - `enable` (Boolean) Enable flag.
 - `id` (Number) Metadata ID.

@@ -50,6 +50,5 @@ func testAccMetadataKodiResourceConfig(name, metadata string) string {
 		movie_metadata_language = -2
 		movie_metadata_url = false
 		use_movie_nfo = true
-		add_collection_name = false
 	}`, name, metadata)
 }

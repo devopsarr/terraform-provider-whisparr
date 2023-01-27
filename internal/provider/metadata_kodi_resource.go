@@ -49,7 +49,6 @@ type MetadataKodi struct {
 	MovieMetadataURL      types.Bool   `tfsdk:"movie_metadata_url"`
 	MovieImages           types.Bool   `tfsdk:"movie_images"`
 	UseMovieNfo           types.Bool   `tfsdk:"use_movie_nfo"`
-	AddCollectionName     types.Bool   `tfsdk:"add_collection_name"`
 }
 
 func (m MetadataKodi) toMetadata() *Metadata {
@@ -63,7 +62,6 @@ func (m MetadataKodi) toMetadata() *Metadata {
 		MovieMetadataURL:      m.MovieMetadataURL,
 		MovieImages:           m.MovieImages,
 		UseMovieNfo:           m.UseMovieNfo,
-		AddCollectionName:     m.AddCollectionName,
 	}
 }
 
@@ -77,7 +75,6 @@ func (m *MetadataKodi) fromMetadata(metadata *Metadata) {
 	m.MovieImages = metadata.MovieImages
 	m.MovieMetadataURL = metadata.MovieMetadataURL
 	m.UseMovieNfo = metadata.UseMovieNfo
-	m.AddCollectionName = metadata.AddCollectionName
 }
 
 func (r *MetadataKodiResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -111,10 +108,6 @@ func (r *MetadataKodiResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			// Field values
-			"add_collection_name": schema.BoolAttribute{
-				MarkdownDescription: "Add collection name flag.",
-				Required:            true,
-			},
 			"use_movie_nfo": schema.BoolAttribute{
 				MarkdownDescription: "Use movie nfo flag.",
 				Required:            true,
