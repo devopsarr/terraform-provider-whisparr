@@ -169,6 +169,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewRestrictionResource,
 
 		// Import Lists
+		NewImportListConfigResource,
 		NewImportListResource,
 		NewImportListCouchPotatoResource,
 		NewImportListCustomResource,
