@@ -196,6 +196,14 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewNamingResource,
 		NewRootFolderResource,
 
+		// Metadata
+		NewMetadataResource,
+		NewMetadataEmbyResource,
+		NewMetadataKodiResource,
+		NewMetadataRoksboxResource,
+		NewMetadataWdtvResource,
+		NewMetadataConfigResource,
+
 		// Notifications
 		NewNotificationResource,
 		NewNotificationBoxcarResource,
@@ -225,6 +233,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewCustomFormatResource,
 		NewDelayProfileResource,
 		NewQualityProfileResource,
+		NewQualityDefinitionResource,
 
 		// Tags
 		NewTagResource,
@@ -260,6 +269,11 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewRootFolderDataSource,
 		NewRootFoldersDataSource,
 
+		// Metadata
+		NewMetadataConfigDataSource,
+		NewMetadataDataSource,
+		NewMetadataConsumersDataSource,
+
 		// Notifications
 		NewNotificationDataSource,
 		NewNotificationsDataSource,
@@ -271,6 +285,8 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewDelayProfilesDataSource,
 		NewQualityProfileDataSource,
 		NewQualityProfilesDataSource,
+		NewQualityDefinitionDataSource,
+		NewQualityDefinitionsDataSource,
 
 		// System Status
 		NewSystemStatusDataSource,
