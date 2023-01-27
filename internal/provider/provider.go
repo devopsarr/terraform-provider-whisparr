@@ -278,6 +278,7 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewMetadataConsumersDataSource,
 
 		// Movies
+		NewMovieDataSource,
 		NewMoviesDataSource,
 
 		// Notifications
