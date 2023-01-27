@@ -233,6 +233,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewCustomFormatResource,
 		NewDelayProfileResource,
 		NewQualityProfileResource,
+		NewQualityDefinitionResource,
 
 		// Tags
 		NewTagResource,
