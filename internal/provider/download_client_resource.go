@@ -550,8 +550,7 @@ func (d *DownloadClient) writeFields(ctx context.Context, fields []*whisparr.Fie
 }
 
 func (d *DownloadClient) read(ctx context.Context) *whisparr.DownloadClientResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(d.Tags.Elements()))
 	tfsdk.ValueAs(ctx, d.Tags, &tags)
 
 	client := whisparr.NewDownloadClientResource()

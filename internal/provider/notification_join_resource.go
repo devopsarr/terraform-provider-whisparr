@@ -315,8 +315,7 @@ func (n *NotificationJoin) write(ctx context.Context, notification *whisparr.Not
 }
 
 func (n *NotificationJoin) read(ctx context.Context) *whisparr.NotificationResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(n.Tags.Elements()))
 	tfsdk.ValueAs(ctx, n.Tags, &tags)
 
 	notification := whisparr.NewNotificationResource()

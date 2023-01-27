@@ -285,8 +285,7 @@ func (i *IndexerOmgwtfnzbs) write(ctx context.Context, indexer *whisparr.Indexer
 }
 
 func (i *IndexerOmgwtfnzbs) read(ctx context.Context) *whisparr.IndexerResource {
-	var tags []*int32
-
+	tags := make([]*int32, len(i.Tags.Elements()))
 	tfsdk.ValueAs(ctx, i.Tags, &tags)
 
 	indexer := whisparr.NewIndexerResource()
