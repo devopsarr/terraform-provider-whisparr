@@ -2,7 +2,7 @@
 version: "3.9"
 services:
   whisparr:
-    image: hotio/whisparr:nightly-0.1.0.53@sha256:6f7f2f759979d96b177d891dae131716f732048790c2252c660566ceb0adbdad
+    image: hotio/whisparr:nightly-0.1.0.53@sha256:76f34c0e996458bbf33a6b3661592aaf9f5d4edfd5aa5fb0a292095d34768016
     container_name: whisparr
     depends_on:
       - transmission
