@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"golang.org/x/exp/slices"
 )
 
 const customFormatResourceName = "custom_format"
@@ -23,11 +22,6 @@ const customFormatResourceName = "custom_format"
 var (
 	_ resource.Resource                = &CustomFormatResource{}
 	_ resource.ResourceWithImportState = &CustomFormatResource{}
-)
-
-var (
-	customFormatStringFields = []string{"value"}
-	customFormatIntFields    = []string{"min", "max"}
 )
 
 func NewCustomFormatResource() resource.Resource {
@@ -45,16 +39,6 @@ type CustomFormat struct {
 	Name                            types.String `tfsdk:"name"`
 	ID                              types.Int64  `tfsdk:"id"`
 	IncludeCustomFormatWhenRenaming types.Bool   `tfsdk:"include_custom_format_when_renaming"`
-}
-
-type Specification struct {
-	Name           types.String `tfsdk:"name"`
-	Implementation types.String `tfsdk:"implementation"`
-	Value          types.String `tfsdk:"value"`
-	Min            types.Int64  `tfsdk:"min"`
-	Max            types.Int64  `tfsdk:"max"`
-	Negate         types.Bool   `tfsdk:"negate"`
-	Required       types.Bool   `tfsdk:"required"`
 }
 
 func (r *CustomFormatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -258,7 +242,7 @@ func (c *CustomFormat) write(ctx context.Context, customFormat *whisparr.CustomF
 	c.IncludeCustomFormatWhenRenaming = types.BoolValue(customFormat.GetIncludeCustomFormatWhenRenaming())
 	c.Specifications = types.SetValueMust(CustomFormatResource{}.getSpecificationSchema().Type(), nil)
 
-	specs := make([]Specification, len(customFormat.Specifications))
+	specs := make([]CustomFormatCondition, len(customFormat.Specifications))
 	for n, c := range customFormat.Specifications {
 		specs[n].write(c)
 	}
@@ -266,36 +250,8 @@ func (c *CustomFormat) write(ctx context.Context, customFormat *whisparr.CustomF
 	tfsdk.ValueFrom(ctx, specs, c.Specifications.Type(ctx), &c.Specifications)
 }
 
-func (s *Specification) write(spec *whisparr.CustomFormatSpecificationSchema) {
-	s.Implementation = types.StringValue(spec.GetImplementation())
-	s.Name = types.StringValue(spec.GetName())
-	s.Negate = types.BoolValue(spec.GetNegate())
-	s.Required = types.BoolValue(spec.GetRequired())
-	s.writeFields(spec.GetFields())
-}
-
-func (s *Specification) writeFields(fields []*whisparr.Field) {
-	for _, f := range fields {
-		if f.Value == nil {
-			continue
-		}
-
-		if slices.Contains(customFormatStringFields, f.GetName()) {
-			helpers.WriteStringField(f, s)
-
-			continue
-		}
-
-		if slices.Contains(customFormatIntFields, f.GetName()) {
-			helpers.WriteIntField(f, s)
-
-			continue
-		}
-	}
-}
-
 func (c *CustomFormat) read(ctx context.Context) *whisparr.CustomFormatResource {
-	specifications := make([]Specification, len(c.Specifications.Elements()))
+	specifications := make([]CustomFormatCondition, len(c.Specifications.Elements()))
 	tfsdk.ValueAs(ctx, c.Specifications, &specifications)
 	specs := make([]*whisparr.CustomFormatSpecificationSchema, len(specifications))
 
@@ -310,34 +266,4 @@ func (c *CustomFormat) read(ctx context.Context) *whisparr.CustomFormatResource 
 	format.SetSpecifications(specs)
 
 	return format
-}
-
-func (s *Specification) read() *whisparr.CustomFormatSpecificationSchema {
-	spec := whisparr.NewCustomFormatSpecificationSchema()
-	spec.SetName(s.Name.ValueString())
-
-	spec.SetImplementation(s.Implementation.ValueString())
-	spec.SetNegate(s.Negate.ValueBool())
-	spec.SetRequired(s.Required.ValueBool())
-	spec.SetFields(s.readFields())
-
-	return spec
-}
-
-func (s *Specification) readFields() []*whisparr.Field {
-	var output []*whisparr.Field
-
-	for _, i := range customFormatIntFields {
-		if field := helpers.ReadIntField(i, s); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	for _, str := range customFormatStringFields {
-		if field := helpers.ReadStringField(str, s); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	return output
 }
