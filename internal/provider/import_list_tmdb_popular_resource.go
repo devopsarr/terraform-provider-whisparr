@@ -334,7 +334,7 @@ func (i *ImportListTMDBPopular) write(ctx context.Context, importList *whisparr.
 		SearchOnAdd:         types.BoolValue(importList.GetSearchOnAdd()),
 	}
 	genericImportList.Tags, _ = types.SetValueFrom(ctx, types.Int64Type, importList.Tags)
-	genericImportList.writeFields(ctx, importList.Fields)
+	genericImportList.writeFields(ctx, importList.GetFields())
 	i.fromImportList(&genericImportList)
 }
 
