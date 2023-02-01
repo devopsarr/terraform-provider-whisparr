@@ -299,6 +299,7 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewCustomFormatConditionIndexerFlagDataSource,
 		NewCustomFormatConditionLanguageDataSource,
 		NewCustomFormatConditionQualityModifierDataSource,
+		NewCustomFormatConditionReleaseTitleDataSource,
 
 		// System Status
 		NewSystemStatusDataSource,
