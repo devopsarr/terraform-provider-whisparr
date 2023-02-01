@@ -8,6 +8,7 @@ import (
 )
 
 func TestAccQualityProfileResource(t *testing.T) {
+	// no parallel to avoid conflict with custom formats
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -74,44 +75,40 @@ func testAccQualityProfileResourceConfig(name string) string {
 		depends_on = [whisparr_custom_format.test]
 	}
 
+	data "whisparr_language" "test" {
+		name = "English"
+	}
+
+	data "whisparr_quality" "bluray" {
+		name = "Bluray-2160p"
+	}
+
+	data "whisparr_quality" "webdl" {
+		name = "WEBDL-2160p"
+	}
+
+	data "whisparr_quality" "webrip" {
+		name = "WEBRip-2160p"
+	}
+
 	resource "whisparr_quality_profile" "test" {
 		name            = "%s"
 		upgrade_allowed = true
-		cutoff          = 1003
+		cutoff          = 2000
 
-		language = {
-			id   = 1
-			name = "English"
-		}
+		language = data.whisparr_language.test
 
 		quality_groups = [
 			{
-				id   = 1003
+				id   = 2000
 				name = "WEB 2160p"
 				qualities = [
-					{
-						id         = 18
-						name       = "WEBDL-2160p"
-						source     = "webdl"
-						resolution = 2160
-					},
-					{
-						id         = 17
-						name       = "WEBRip-2160p"
-						source     = "webrip"
-						resolution = 2160
-					}
+					data.whisparr_quality.webdl,
+					data.whisparr_quality.webrip,
 				]
 			},
 			{
-				qualities = [
-					{
-						id = 19
-						name = "Bluray-2160p"
-						source = "bluray"
-						resolution = 2160
-					}
-				]
+				qualities = [data.whisparr_quality.bluray]
 			}
 		]
 

@@ -307,7 +307,7 @@ func (n *NotificationCustomScript) write(ctx context.Context, notification *whis
 		Tags:                        types.SetValueMust(types.Int64Type, nil),
 	}
 	tfsdk.ValueFrom(ctx, notification.Tags, genericNotification.Tags.Type(ctx), &genericNotification.Tags)
-	genericNotification.writeFields(ctx, notification.Fields)
+	genericNotification.writeFields(ctx, notification.GetFields())
 	n.fromNotification(&genericNotification)
 }
 
