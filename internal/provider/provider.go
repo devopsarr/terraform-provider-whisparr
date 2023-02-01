@@ -290,6 +290,7 @@ func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.
 		NewCustomFormatsDataSource,
 		NewDelayProfileDataSource,
 		NewDelayProfilesDataSource,
+		NewQualityDataSource,
 		NewQualityProfileDataSource,
 		NewQualityProfilesDataSource,
 		NewQualityDefinitionDataSource,
