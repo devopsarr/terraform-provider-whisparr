@@ -412,7 +412,7 @@ func (d *NotificationsDataSource) Read(ctx context.Context, req datasource.ReadR
 	// Get notifications current value
 	response, _, err := d.client.NotificationApi.ListNotification(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, notificationsDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.List, notificationsDataSourceName, err))
 
 		return
 	}

@@ -4,6 +4,5 @@ resource "whisparr_indexer_torznab" "example" {
   base_url                = "https://feed.animetosho.org"
   api_path                = "/nabapi"
   categories              = [2000, 2010]
-  remove_year             = true
   minimum_seeders         = 1
 }

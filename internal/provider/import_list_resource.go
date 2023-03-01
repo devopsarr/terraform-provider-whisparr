@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"golang.org/x/exp/slices"
 )
 
 const importListResourceName = "import_list"
@@ -27,23 +26,25 @@ var (
 	_ resource.ResourceWithImportState = &ImportListResource{}
 )
 
-var (
-	importListBoolFields     = []string{"onlyActive", "personCast", "personCastDirector", "personCastProducer", "personCastSound", "personCastWriting"}
-	importListIntFields      = []string{"port", "source", "minScore", "tMDbListType", "listType", "limit", "traktListType", "languageCode"}
-	importListStringFields   = []string{"baseUrl", "urlBase", "link", "apiKey", "url", "accessToken", "refreshToken", "expires", "companyId", "collectionId", "keywordId", "listId", "personId", "accountId", "authUser", "username", "listname", "traktAdditionalParameters", "tmdbCertification", "genres", "years", "rating", "minVoteAverage", "minVotes", "certification", "includeGenreIds", "excludeGenreIds"}
-	importListIntSliceFields = []string{"profileIds", "tagIds"}
-)
+var importListFields = helpers.Fields{
+	Bools:             []string{"onlyActive", "personCast", "personCastDirector", "personCastProducer", "personCastSound", "personCastWriting"},
+	Ints:              []string{"port", "source", "minScore", "tMDbListType", "limit", "traktListType", "languageCode", "userListType"},
+	IntsExceptions:    []string{"filterCriteria.languageCode", "listType"},
+	Strings:           []string{"baseUrl", "urlBase", "link", "apiKey", "url", "accessToken", "refreshToken", "expires", "companyId", "collectionId", "keywordId", "listId", "personId", "accountId", "authUser", "username", "listname", "traktAdditionalParameters", "tmdbCertification", "genres", "years", "rating", "minVoteAverage", "minVotes", "certification", "includeGenreIds", "excludeGenreIds"},
+	StringsExceptions: []string{"filterCriteria.certification", "filterCriteria.minVoteAverage", "filterCriteria.minVotes", "filterCriteria.includeGenreIds", "filterCriteria.excludeGenreIds"},
+	IntSlices:         []string{"profileIds", "tagIds"},
+}
 
 func NewImportListResource() resource.Resource {
 	return &ImportListResource{}
 }
 
-// ImportListResource defines the download client implementation.
+// ImportListResource defines the import list implementation.
 type ImportListResource struct {
 	client *whisparr.APIClient
 }
 
-// ImportList describes the download client data model.
+// ImportList describes the import list data model.
 type ImportList struct {
 	ProfileIds                types.Set    `tfsdk:"profile_ids"`
 	TagIds                    types.Set    `tfsdk:"tag_ids"`
@@ -543,39 +544,7 @@ func (i *ImportList) write(ctx context.Context, importList *whisparr.ImportListR
 	i.Name = types.StringValue(importList.GetName())
 	i.ProfileIds = types.SetValueMust(types.Int64Type, nil)
 	i.TagIds = types.SetValueMust(types.Int64Type, nil)
-	i.writeFields(ctx, importList.GetFields())
-}
-
-func (i *ImportList) writeFields(ctx context.Context, fields []*whisparr.Field) {
-	for _, f := range fields {
-		if f.Value == nil {
-			continue
-		}
-
-		if slices.Contains(importListBoolFields, f.GetName()) {
-			helpers.WriteBoolField(f, i)
-
-			continue
-		}
-
-		if slices.Contains(importListStringFields, f.GetName()) || f.GetName() == "filterCriteria.certification" || f.GetName() == "filterCriteria.minVoteAverage" || f.GetName() == "filterCriteria.minVotes" || f.GetName() == "filterCriteria.includeGenreIds" || f.GetName() == "filterCriteria.excludeGenreIds" {
-			helpers.WriteStringField(f, i)
-
-			continue
-		}
-
-		if slices.Contains(importListIntFields, f.GetName()) || f.GetName() == "filterCriteria.languageCode" {
-			helpers.WriteIntField(f, i)
-
-			continue
-		}
-
-		if slices.Contains(importListIntSliceFields, f.GetName()) {
-			helpers.WriteIntSliceField(ctx, f, i)
-
-			continue
-		}
-	}
+	helpers.WriteFields(ctx, i, importList.GetFields(), importListFields)
 }
 
 func (i *ImportList) read(ctx context.Context) *whisparr.ImportListResource {
@@ -597,37 +566,7 @@ func (i *ImportList) read(ctx context.Context) *whisparr.ImportListResource {
 	list.SetImplementation(i.Implementation.ValueString())
 	list.SetName(i.Name.ValueString())
 	list.SetTags(tags)
-	list.SetFields(i.readFields(ctx))
+	list.SetFields(helpers.ReadFields(ctx, i, importListFields))
 
 	return list
-}
-
-func (i *ImportList) readFields(ctx context.Context) []*whisparr.Field {
-	var output []*whisparr.Field
-
-	for _, b := range importListBoolFields {
-		if field := helpers.ReadBoolField(b, i); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	for _, j := range importListIntFields {
-		if field := helpers.ReadIntField(j, i); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	for _, s := range importListStringFields {
-		if field := helpers.ReadStringField(s, i); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	for _, s := range importListIntSliceFields {
-		if field := helpers.ReadIntSliceField(ctx, s, i); field != nil {
-			output = append(output, field)
-		}
-	}
-
-	return output
 }

@@ -210,7 +210,7 @@ func (d *IndexersDataSource) Read(ctx context.Context, req datasource.ReadReques
 	// Get indexers current value
 	response, _, err := d.client.IndexerApi.ListIndexer(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, indexersDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.List, indexersDataSourceName, err))
 
 		return
 	}

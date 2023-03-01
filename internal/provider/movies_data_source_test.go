@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,9 +14,14 @@ func TestAccMoviesDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Unauthorized
+			{
+				Config:      testAccMovieResourceConfig("Error", "error", 0) + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
+			},
 			// Read testing
 			{
-				Config: testAccMoviesDataSourceConfig,
+				Config: testAccMovieResourceConfig("Kim Kardashian, Superstar", "Kim_Kardashian_Superstar_2007", 45323) + testAccMoviesDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckTypeSetElemNestedAttrs("data.whisparr_movies.test", "movies.*", map[string]string{"title": "Kim Kardashian, Superstar"}),
 				),
@@ -25,16 +31,6 @@ func TestAccMoviesDataSource(t *testing.T) {
 }
 
 const testAccMoviesDataSourceConfig = `
-resource "whisparr_movie" "test" {
-	monitored = false
-	title = "Kim Kardashian, Superstar"
-	path = "/config/Kim_Kardashian_Superstar_2007"
-	quality_profile_id = 1
-	tmdb_id = 45323
-
-	minimum_availability = "inCinemas"
-}
-
 data "whisparr_movies" "test" {
 	depends_on = [whisparr_movie.test]
 }

@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,51 +15,31 @@ func TestAccQualityProfileDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Unauthorized
+			{
+				Config:      testAccQualityProfileDataSourceConfig("Error") + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
+			},
+			// Not found testing
+			{
+				Config:      testAccQualityProfileDataSourceConfig("Error"),
+				ExpectError: regexp.MustCompile("Unable to find quality_profile"),
+			},
 			// Read testing
 			{
-				Config: testAccQualityProfileDataSourceConfig,
+				Config: testAccQualityProfileDataSourceConfig("Any"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.whisparr_quality_profile.test", "id"),
-					resource.TestCheckResourceAttr("data.whisparr_quality_profile.test", "cutoff", "1003")),
+					resource.TestCheckResourceAttr("data.whisparr_quality_profile.test", "language.id", "1")),
 			},
 		},
 	})
 }
 
-const testAccQualityProfileDataSourceConfig = `
-resource "whisparr_quality_profile" "test" {
-	name            = "qpdata"
-	upgrade_allowed = true
-	cutoff          = 1003
-
-	language = {
-		id   = 1
-		name = "English"
+func testAccQualityProfileDataSourceConfig(name string) string {
+	return fmt.Sprintf(`
+	data "whisparr_quality_profile" "test" {
+		name = "%s"
 	}
-
-	quality_groups = [
-		{
-			id   = 1003
-			name = "WEB 2160p"
-			qualities = [
-				{
-					id         = 18
-					name       = "WEBDL-2160p"
-					source     = "webdl"
-					resolution = 2160
-				},
-				{
-					id         = 17
-					name       = "WEBRip-2160p"
-					source     = "webrip"
-					resolution = 2160
-				}
-			]
-		}
-	]
+	`, name)
 }
-
-data "whisparr_quality_profile" "test" {
-	name = whisparr_quality_profile.test.name
-}
-`

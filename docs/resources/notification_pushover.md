@@ -19,7 +19,6 @@ resource "whisparr_notification_join" "example" {
   on_grab                          = false
   on_download                      = false
   on_upgrade                       = false
-  on_movie_added                   = false
   on_movie_delete                  = false
   on_movie_file_delete             = false
   on_movie_file_delete_for_upgrade = true
@@ -42,6 +41,7 @@ resource "whisparr_notification_join" "example" {
 - `api_key` (String, Sensitive) API key.
 - `name` (String) NotificationPushover name.
 - `on_movie_delete` (Boolean) On movie delete flag.
+- `user_key` (String, Sensitive) User key.
 
 ### Optional
 
@@ -59,7 +59,6 @@ resource "whisparr_notification_join" "example" {
 - `retry` (Number) Retry.
 - `sound` (String) Sound.
 - `tags` (Set of Number) List of associated tags.
-- `user_key` (String, Sensitive) User key.
 
 ### Read-Only
 

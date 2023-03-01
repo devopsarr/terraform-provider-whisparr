@@ -3,7 +3,6 @@ resource "whisparr_notification_kodi" "example" {
   on_download                      = false
   on_upgrade                       = false
   on_rename                        = false
-  on_movie_added                   = false
   on_movie_delete                  = false
   on_movie_file_delete             = false
   on_movie_file_delete_for_upgrade = true
