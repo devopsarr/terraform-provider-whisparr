@@ -36,3 +36,10 @@ func testAccAPIClient() *whisparr.APIClient {
 
 	return whisparr.NewAPIClient(config)
 }
+
+const testUnauthorizedProvider = `
+provider "whisparr" {
+	url = "http://localhost:6969"
+	api_key = "ErrorAPIKey"
+  }
+`

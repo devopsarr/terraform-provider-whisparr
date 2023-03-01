@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,10 +15,20 @@ func TestAccImportListDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Unauthorized
+			{
+				Config:      testAccImportListDataSourceConfig("\"Error\"") + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
+			},
+			// Not found testing
+			{
+				Config:      testAccImportListDataSourceConfig("\"Error\""),
+				ExpectError: regexp.MustCompile("Unable to find import_list"),
+			},
 			// Read testing
 			{
 				PreConfig: rootFolderDSInit,
-				Config:    testAccImportListDataSourceConfig,
+				Config:    testAccImportListResourceConfig("importListDataTest", "false") + testAccImportListDataSourceConfig("whisparr_import_list.test.name"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.whisparr_import_list.test", "id"),
 					resource.TestCheckResourceAttr("data.whisparr_import_list.test", "should_monitor", "true")),
@@ -25,24 +37,10 @@ func TestAccImportListDataSource(t *testing.T) {
 	})
 }
 
-const testAccImportListDataSourceConfig = `
-resource "whisparr_import_list" "test" {
-	enabled = false
-	enable_auto = false
-	search_on_add = false
-	list_type = "program"
-	root_folder_path = "/config"
-	should_monitor = true
-	minimum_availability = "tba"
-	quality_profile_id = 1
-	name = "importListDataTest"
-	implementation = "WhisparrImport"
-	config_contract = "WhisparrSettings"
-	base_url = "http://127.0.0.1:6969"
-	api_key = "testAPIKey"
+func testAccImportListDataSourceConfig(name string) string {
+	return fmt.Sprintf(`
+	data "whisparr_import_list" "test" {
+		name = %s
+	}
+	`, name)
 }
-
-data "whisparr_import_list" "test" {
-	name = whisparr_import_list.test.name
-}
-`

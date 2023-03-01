@@ -103,7 +103,7 @@ func (d *RootFoldersDataSource) Read(ctx context.Context, req datasource.ReadReq
 	// Get rootfolders current value
 	response, _, err := d.client.RootFolderApi.ListRootFolder(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, rootFoldersDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.List, rootFoldersDataSourceName, err))
 
 		return
 	}

@@ -13,6 +13,11 @@ func TestAccSystemStatusDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Unauthorized
+			// {
+			// 	Config:      testAccSystemStatusDataSourceConfig + testUnauthorizedProvider,
+			// 	ExpectError: regexp.MustCompile("Client Error"),
+			// },
 			// Read testing
 			{
 				Config: testAccSystemStatusDataSourceConfig,

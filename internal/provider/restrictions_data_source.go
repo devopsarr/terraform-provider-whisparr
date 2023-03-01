@@ -92,7 +92,7 @@ func (d *RestrictionsDataSource) Read(ctx context.Context, req datasource.ReadRe
 	// Get restrictions current value
 	response, _, err := d.client.RestrictionApi.ListRestriction(ctx).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, restrictionsDataSourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.List, restrictionsDataSourceName, err))
 
 		return
 	}

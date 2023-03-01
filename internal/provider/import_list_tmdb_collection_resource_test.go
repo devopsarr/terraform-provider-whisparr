@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,6 +15,11 @@ func TestAccImportListTMDBCollectionResource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Unauthorized Create
+			{
+				Config:      testAccImportListTMDBCollectionResourceConfig("resourceTMDCollectionTest", "true") + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
+			},
 			// Create and Read testing
 			{
 				PreConfig: rootFolderDSInit,
@@ -22,6 +28,11 @@ func TestAccImportListTMDBCollectionResource(t *testing.T) {
 					resource.TestCheckResourceAttr("whisparr_import_list_tmdb_collection.test", "should_monitor", "true"),
 					resource.TestCheckResourceAttrSet("whisparr_import_list_tmdb_collection.test", "id"),
 				),
+			},
+			// Unauthorized Read
+			{
+				Config:      testAccImportListTMDBCollectionResourceConfig("resourceTMDCollectionTest", "true") + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
 			},
 			// Update and Read testing
 			{

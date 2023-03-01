@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -13,7 +14,12 @@ func TestAccTagsDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create a tag to have a value to check
+			// Unauthorized
+			{
+				Config:      testAccTagsDataSourceConfig + testUnauthorizedProvider,
+				ExpectError: regexp.MustCompile("Client Error"),
+			},
+			// Create a resource to have a value to check
 			{
 				Config: testAccTagResourceConfig("test-1", "english") + testAccTagResourceConfig("test-2", "4k"),
 			},

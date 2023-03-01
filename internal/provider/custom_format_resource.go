@@ -243,8 +243,8 @@ func (c *CustomFormat) write(ctx context.Context, customFormat *whisparr.CustomF
 	c.Specifications = types.SetValueMust(CustomFormatResource{}.getSpecificationSchema().Type(), nil)
 
 	specs := make([]CustomFormatCondition, len(customFormat.Specifications))
-	for n, c := range customFormat.Specifications {
-		specs[n].write(c)
+	for n, s := range customFormat.Specifications {
+		specs[n].write(ctx, s)
 	}
 
 	tfsdk.ValueFrom(ctx, specs, c.Specifications.Type(ctx), &c.Specifications)
@@ -255,8 +255,8 @@ func (c *CustomFormat) read(ctx context.Context) *whisparr.CustomFormatResource 
 	tfsdk.ValueAs(ctx, c.Specifications, &specifications)
 	specs := make([]*whisparr.CustomFormatSpecificationSchema, len(specifications))
 
-	for n, d := range specifications {
-		specs[n] = d.read()
+	for n, s := range specifications {
+		specs[n] = s.read(ctx)
 	}
 
 	format := whisparr.NewCustomFormatResource()
