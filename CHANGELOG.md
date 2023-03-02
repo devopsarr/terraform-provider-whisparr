@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.2.0](https://github.com/devopsarr/terraform-provider-whisparr/compare/v1.1.0...v1.2.0) (2023-03-01)
+
+
+### Features
+
+* add custom format condition data source ([95ebc7c](https://github.com/devopsarr/terraform-provider-whisparr/commit/95ebc7c4f7a17978120ef39b999259d524cb1e52))
+* add custom format condition edition data source ([24ccb64](https://github.com/devopsarr/terraform-provider-whisparr/commit/24ccb643ca1e22642c3f81e8a6ab84f2876602a9))
+* add custom format condition indexer flag data source ([7f18f92](https://github.com/devopsarr/terraform-provider-whisparr/commit/7f18f923264da5093b9ada872ee3639b82354a88))
+* add custom format condition language data source ([c96ef7d](https://github.com/devopsarr/terraform-provider-whisparr/commit/c96ef7d1774d05909e59ff3c51bad9dad7e26266))
+* add custom format condition quality modifier data source ([2f0c227](https://github.com/devopsarr/terraform-provider-whisparr/commit/2f0c227e0b0b2226f773cdfdbf12c533ed61d7ea))
+* add custom format condition release title data source ([8c2a3e6](https://github.com/devopsarr/terraform-provider-whisparr/commit/8c2a3e6070136969e2cfe6385eb2e3e607160cc1))
+* add custom format condition resolution data source ([d937557](https://github.com/devopsarr/terraform-provider-whisparr/commit/d937557b35aa6d963da4f189c9521003b15db2e3))
+* add custom format condition size data source ([a1c04ae](https://github.com/devopsarr/terraform-provider-whisparr/commit/a1c04aef003b66d7c9f70531cf946d86edb755c1))
+* add custom format condition size data source ([deef116](https://github.com/devopsarr/terraform-provider-whisparr/commit/deef1163ea63d27c49b58a024fa66c57f4a46e62))
+* add language data source ([a06449a](https://github.com/devopsarr/terraform-provider-whisparr/commit/a06449a53c7fe02ca28bc68611a5d180f99e6e3a))
+* add languages data source ([c7b20fd](https://github.com/devopsarr/terraform-provider-whisparr/commit/c7b20fdba9055f9edbc23d9b8a1b6e08fee48482))
+* add quality data source ([0f01b52](https://github.com/devopsarr/terraform-provider-whisparr/commit/0f01b526a73666684c58f19c077c16a0e1066a29))
+
+
+### Bug Fixes
+
+* read data source from request ([d9a3717](https://github.com/devopsarr/terraform-provider-whisparr/commit/d9a371705ceae48a1c71d62ad1eef45a57fe0a8d))
+* use get function for sdk fields ([b31b3a0](https://github.com/devopsarr/terraform-provider-whisparr/commit/b31b3a0e889264c2432c9ebce4abf9475ca8dc5a))
+
 ## [1.1.0](https://github.com/devopsarr/terraform-provider-whisparr/compare/v1.0.0...v1.1.0) (2023-01-27)
 
 
