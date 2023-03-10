@@ -29,7 +29,7 @@ resource "whisparr_metadata_kodi" "example" {
 ### Required
 
 - `movie_images` (Boolean) Movie images flag.
-- `movie_metadata` (Boolean) Movie metafata flag.
+- `movie_metadata` (Boolean) Movie metadata flag.
 - `movie_metadata_language` (Number) Movie metadata language.
 - `movie_metadata_url` (Boolean) Movie metadata URL flag.
 - `name` (String) Metadata name.
