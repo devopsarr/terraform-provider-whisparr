@@ -336,7 +336,7 @@ func (r *QualityProfileResource) Delete(ctx context.Context, req resource.Delete
 	// Delete qualityprofile current value
 	_, err := r.client.QualityProfileApi.DeleteQualityProfile(ctx, int32(profile.ID.ValueInt64())).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Read, qualityProfileResourceName, err))
+		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, qualityProfileResourceName, err))
 
 		return
 	}
@@ -379,11 +379,9 @@ func (p *QualityProfile) write(ctx context.Context, profile *whisparr.QualityPro
 }
 
 func (q *QualityGroup) write(ctx context.Context, group *whisparr.QualityProfileQualityItemResource) {
-	var (
-		name      string
-		id        int64
-		qualities []Quality
-	)
+	qualities := make([]Quality, len(group.GetItems()))
+	name := types.StringNull()
+	id := types.Int64Null()
 
 	if len(group.GetItems()) == 0 {
 		qualities = []Quality{{
@@ -393,16 +391,15 @@ func (q *QualityGroup) write(ctx context.Context, group *whisparr.QualityProfile
 			Resolution: types.Int64Value(int64(group.Quality.GetResolution())),
 		}}
 	} else {
-		name = group.GetName()
-		id = int64(group.GetId())
-		qualities = make([]Quality, len(group.GetItems()))
+		name = types.StringValue(group.GetName())
+		id = types.Int64Value(int64(group.GetId()))
 		for m, q := range group.GetItems() {
 			qualities[m].write(q)
 		}
 	}
 
-	q.Name = types.StringValue(name)
-	q.ID = types.Int64Value(id)
+	q.Name = name
+	q.ID = id
 	q.Qualities = types.SetValueMust(QualityProfileResource{}.getQualitySchema().Type(), nil)
 
 	tfsdk.ValueFrom(ctx, qualities, q.Qualities.Type(ctx), &q.Qualities)
