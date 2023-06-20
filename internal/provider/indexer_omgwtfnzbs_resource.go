@@ -246,23 +246,23 @@ func (r *IndexerOmgwtfnzbsResource) Update(ctx context.Context, req resource.Upd
 }
 
 func (r *IndexerOmgwtfnzbsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var indexer IndexerOmgwtfnzbs
+	var ID int64
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &indexer)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("id"), &ID)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Delete IndexerOmgwtfnzbs current value
-	_, err := r.client.IndexerApi.DeleteIndexer(ctx, int32(indexer.ID.ValueInt64())).Execute()
+	_, err := r.client.IndexerApi.DeleteIndexer(ctx, int32(ID)).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, indexerOmgwtfnzbsResourceName, err))
 
 		return
 	}
 
-	tflog.Trace(ctx, "deleted "+indexerOmgwtfnzbsResourceName+": "+strconv.Itoa(int(indexer.ID.ValueInt64())))
+	tflog.Trace(ctx, "deleted "+indexerOmgwtfnzbsResourceName+": "+strconv.Itoa(int(ID)))
 	resp.State.RemoveResource(ctx)
 }
 
