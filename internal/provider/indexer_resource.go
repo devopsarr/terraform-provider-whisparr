@@ -7,13 +7,13 @@ import (
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -278,7 +278,7 @@ func (r *IndexerResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// Create new Indexer
-	request := indexer.read(ctx)
+	request := indexer.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.IndexerApi.CreateIndexer(ctx).IndexerResource(*request).Execute()
 	if err != nil {
@@ -292,7 +292,7 @@ func (r *IndexerResource) Create(ctx context.Context, req resource.CreateRequest
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state Indexer
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -319,7 +319,7 @@ func (r *IndexerResource) Read(ctx context.Context, req resource.ReadRequest, re
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state Indexer
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -334,7 +334,7 @@ func (r *IndexerResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Update Indexer
-	request := indexer.read(ctx)
+	request := indexer.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.IndexerApi.UpdateIndexer(ctx, strconv.Itoa(int(request.GetId()))).IndexerResource(*request).Execute()
 	if err != nil {
@@ -348,7 +348,7 @@ func (r *IndexerResource) Update(ctx context.Context, req resource.UpdateRequest
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state Indexer
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -378,8 +378,12 @@ func (r *IndexerResource) ImportState(ctx context.Context, req resource.ImportSt
 	tflog.Trace(ctx, "imported "+indexerResourceName+": "+req.ID)
 }
 
-func (i *Indexer) write(ctx context.Context, indexer *whisparr.IndexerResource) {
-	i.Tags, _ = types.SetValueFrom(ctx, types.Int64Type, indexer.GetTags())
+func (i *Indexer) write(ctx context.Context, indexer *whisparr.IndexerResource, diags *diag.Diagnostics) {
+	var localDiag diag.Diagnostics
+
+	i.Tags, localDiag = types.SetValueFrom(ctx, types.Int64Type, indexer.Tags)
+	diags.Append(localDiag...)
+
 	i.EnableAutomaticSearch = types.BoolValue(indexer.GetEnableAutomaticSearch())
 	i.EnableInteractiveSearch = types.BoolValue(indexer.GetEnableInteractiveSearch())
 	i.EnableRss = types.BoolValue(indexer.GetEnableRss())
@@ -398,10 +402,7 @@ func (i *Indexer) write(ctx context.Context, indexer *whisparr.IndexerResource) 
 	helpers.WriteFields(ctx, i, indexer.GetFields(), indexerFields)
 }
 
-func (i *Indexer) read(ctx context.Context) *whisparr.IndexerResource {
-	tags := make([]*int32, len(i.Tags.Elements()))
-	tfsdk.ValueAs(ctx, i.Tags, &tags)
-
+func (i *Indexer) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.IndexerResource {
 	indexer := whisparr.NewIndexerResource()
 	indexer.SetEnableAutomaticSearch(i.EnableAutomaticSearch.ValueBool())
 	indexer.SetEnableInteractiveSearch(i.EnableInteractiveSearch.ValueBool())
@@ -413,7 +414,7 @@ func (i *Indexer) read(ctx context.Context) *whisparr.IndexerResource {
 	indexer.SetImplementation(i.Implementation.ValueString())
 	indexer.SetName(i.Name.ValueString())
 	indexer.SetProtocol(whisparr.DownloadProtocol(i.Protocol.ValueString()))
-	indexer.SetTags(tags)
+	diags.Append(i.Tags.ElementsAs(ctx, &indexer.Tags, true)...)
 	indexer.SetFields(helpers.ReadFields(ctx, i, indexerFields))
 
 	return indexer

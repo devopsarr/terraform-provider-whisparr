@@ -8,6 +8,7 @@ import (
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -199,7 +200,7 @@ func (r *ImportListTMDBUserResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Create new ImportListTMDBUser
-	request := importList.read(ctx)
+	request := importList.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.ImportListApi.CreateImportList(ctx).ImportListResource(*request).Execute()
 	if err != nil {
@@ -210,7 +211,7 @@ func (r *ImportListTMDBUserResource) Create(ctx context.Context, req resource.Cr
 
 	tflog.Trace(ctx, "created "+importListTMDBUserResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	importList.write(ctx, response)
+	importList.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &importList)...)
 }
 
@@ -234,7 +235,7 @@ func (r *ImportListTMDBUserResource) Read(ctx context.Context, req resource.Read
 
 	tflog.Trace(ctx, "read "+importListTMDBUserResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	importList.write(ctx, response)
+	importList.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &importList)...)
 }
 
@@ -249,7 +250,7 @@ func (r *ImportListTMDBUserResource) Update(ctx context.Context, req resource.Up
 	}
 
 	// Update ImportListTMDBUser
-	request := importList.read(ctx)
+	request := importList.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.ImportListApi.UpdateImportList(ctx, strconv.Itoa(int(request.GetId()))).ImportListResource(*request).Execute()
 	if err != nil {
@@ -260,7 +261,7 @@ func (r *ImportListTMDBUserResource) Update(ctx context.Context, req resource.Up
 
 	tflog.Trace(ctx, "updated "+importListTMDBUserResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	importList.write(ctx, response)
+	importList.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &importList)...)
 }
 
@@ -290,12 +291,12 @@ func (r *ImportListTMDBUserResource) ImportState(ctx context.Context, req resour
 	tflog.Trace(ctx, "imported "+importListTMDBUserResourceName+": "+req.ID)
 }
 
-func (i *ImportListTMDBUser) write(ctx context.Context, importList *whisparr.ImportListResource) {
+func (i *ImportListTMDBUser) write(ctx context.Context, importList *whisparr.ImportListResource, diags *diag.Diagnostics) {
 	genericImportList := i.toImportList()
-	genericImportList.write(ctx, importList)
+	genericImportList.write(ctx, importList, diags)
 	i.fromImportList(genericImportList)
 }
 
-func (i *ImportListTMDBUser) read(ctx context.Context) *whisparr.ImportListResource {
-	return i.toImportList().read(ctx)
+func (i *ImportListTMDBUser) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.ImportListResource {
+	return i.toImportList().read(ctx, diags)
 }

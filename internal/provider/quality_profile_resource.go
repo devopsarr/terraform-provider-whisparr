@@ -6,6 +6,7 @@ import (
 
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -257,7 +258,7 @@ func (r *QualityProfileResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Build Create resource
-	request := profile.read(ctx)
+	request := profile.read(ctx, &resp.Diagnostics)
 
 	// Create new QualityProfile
 	response, _, err := r.client.QualityProfileApi.CreateQualityProfile(ctx).QualityProfileResource(*request).Execute()
@@ -269,7 +270,7 @@ func (r *QualityProfileResource) Create(ctx context.Context, req resource.Create
 
 	tflog.Trace(ctx, "created "+qualityProfileResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	profile.write(ctx, response)
+	profile.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &profile)...)
 }
 
@@ -293,7 +294,7 @@ func (r *QualityProfileResource) Read(ctx context.Context, req resource.ReadRequ
 
 	tflog.Trace(ctx, "read "+qualityProfileResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	profile.write(ctx, response)
+	profile.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &profile)...)
 }
 
@@ -308,7 +309,7 @@ func (r *QualityProfileResource) Update(ctx context.Context, req resource.Update
 	}
 
 	// Build Update resource
-	request := profile.read(ctx)
+	request := profile.read(ctx, &resp.Diagnostics)
 
 	// Update QualityProfile
 	response, _, err := r.client.QualityProfileApi.UpdateQualityProfile(ctx, strconv.Itoa(int(request.GetId()))).QualityProfileResource(*request).Execute()
@@ -320,7 +321,7 @@ func (r *QualityProfileResource) Update(ctx context.Context, req resource.Update
 
 	tflog.Trace(ctx, "updated "+qualityProfileResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	profile.write(ctx, response)
+	profile.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &profile)...)
 }
 
@@ -423,14 +424,14 @@ func (l *QualityLanguage) write(language *whisparr.Language) {
 	l.ID = types.Int64Value(int64(language.GetId()))
 }
 
-func (p *QualityProfile) read(ctx context.Context) *whisparr.QualityProfileResource {
+func (p *QualityProfile) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.QualityProfileResource {
 	groups := make([]QualityGroup, len(p.QualityGroups.Elements()))
-	tfsdk.ValueAs(ctx, p.QualityGroups, &groups)
+	diags.Append(p.QualityGroups.ElementsAs(ctx, &groups, false)...)
 	qualities := make([]*whisparr.QualityProfileQualityItemResource, len(groups))
 
 	for n, g := range groups {
 		q := make([]Quality, len(g.Qualities.Elements()))
-		tfsdk.ValueAs(ctx, g.Qualities, &q)
+		diags.Append(g.Qualities.ElementsAs(ctx, &q, false)...)
 
 		if len(q) == 1 {
 			quality := whisparr.NewQuality()
@@ -462,7 +463,7 @@ func (p *QualityProfile) read(ctx context.Context) *whisparr.QualityProfileResou
 	}
 
 	formats := make([]FormatItem, len(p.FormatItems.Elements()))
-	tfsdk.ValueAs(ctx, p.FormatItems, &formats)
+	diags.Append(p.FormatItems.ElementsAs(ctx, &formats, true)...)
 	formatItems := make([]*whisparr.ProfileFormatItemResource, len(formats))
 
 	for n, f := range formats {

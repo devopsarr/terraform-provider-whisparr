@@ -7,13 +7,13 @@ import (
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -427,7 +427,7 @@ func (r *ImportListResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Create new ImportList
-	request := importList.read(ctx)
+	request := importList.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.ImportListApi.CreateImportList(ctx).ImportListResource(*request).Execute()
 	if err != nil {
@@ -441,7 +441,7 @@ func (r *ImportListResource) Create(ctx context.Context, req resource.CreateRequ
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state ImportList
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -468,7 +468,7 @@ func (r *ImportListResource) Read(ctx context.Context, req resource.ReadRequest,
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state ImportList
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -483,7 +483,7 @@ func (r *ImportListResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Update ImportList
-	request := importList.read(ctx)
+	request := importList.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.ImportListApi.UpdateImportList(ctx, strconv.Itoa(int(request.GetId()))).ImportListResource(*request).Execute()
 	if err != nil {
@@ -497,7 +497,7 @@ func (r *ImportListResource) Update(ctx context.Context, req resource.UpdateRequ
 	// this is needed because of many empty fields are unknown in both plan and read
 	var state ImportList
 
-	state.write(ctx, response)
+	state.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, state)...)
 }
 
@@ -527,8 +527,12 @@ func (r *ImportListResource) ImportState(ctx context.Context, req resource.Impor
 	tflog.Trace(ctx, "imported "+importListResourceName+": "+req.ID)
 }
 
-func (i *ImportList) write(ctx context.Context, importList *whisparr.ImportListResource) {
-	i.Tags, _ = types.SetValueFrom(ctx, types.Int64Type, importList.Tags)
+func (i *ImportList) write(ctx context.Context, importList *whisparr.ImportListResource, diags *diag.Diagnostics) {
+	var localDiag diag.Diagnostics
+
+	i.Tags, localDiag = types.SetValueFrom(ctx, types.Int64Type, importList.Tags)
+	diags.Append(localDiag...)
+
 	i.Enabled = types.BoolValue(importList.GetEnabled())
 	i.EnableAuto = types.BoolValue(importList.GetEnableAuto())
 	i.SearchOnAdd = types.BoolValue(importList.GetSearchOnAdd())
@@ -547,10 +551,7 @@ func (i *ImportList) write(ctx context.Context, importList *whisparr.ImportListR
 	helpers.WriteFields(ctx, i, importList.GetFields(), importListFields)
 }
 
-func (i *ImportList) read(ctx context.Context) *whisparr.ImportListResource {
-	tags := make([]*int32, len(i.Tags.Elements()))
-	tfsdk.ValueAs(ctx, i.Tags, &tags)
-
+func (i *ImportList) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.ImportListResource {
 	list := whisparr.NewImportListResource()
 	list.SetEnabled(i.Enabled.ValueBool())
 	list.SetEnableAuto(i.EnableAuto.ValueBool())
@@ -565,7 +566,7 @@ func (i *ImportList) read(ctx context.Context) *whisparr.ImportListResource {
 	list.SetConfigContract(i.ConfigContract.ValueString())
 	list.SetImplementation(i.Implementation.ValueString())
 	list.SetName(i.Name.ValueString())
-	list.SetTags(tags)
+	diags.Append(i.Tags.ElementsAs(ctx, &list.Tags, true)...)
 	list.SetFields(helpers.ReadFields(ctx, i, importListFields))
 
 	return list
