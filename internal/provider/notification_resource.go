@@ -7,6 +7,7 @@ import (
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -127,6 +128,93 @@ type Notification struct {
 	OnRename                    types.Bool   `tfsdk:"on_rename"`
 	OnUpgrade                   types.Bool   `tfsdk:"on_upgrade"`
 	OnDownload                  types.Bool   `tfsdk:"on_download"`
+}
+
+func (n Notification) getType() attr.Type {
+	return types.ObjectType{}.WithAttributeTypes(
+		map[string]attr.Type{
+			"tags":                             types.SetType{}.WithElementType(types.Int64Type),
+			"import_fields":                    types.SetType{}.WithElementType(types.Int64Type),
+			"grab_fields":                      types.SetType{}.WithElementType(types.Int64Type),
+			"field_tags":                       types.SetType{}.WithElementType(types.StringType),
+			"recipients":                       types.SetType{}.WithElementType(types.StringType),
+			"devices":                          types.SetType{}.WithElementType(types.StringType),
+			"device_ids":                       types.SetType{}.WithElementType(types.StringType),
+			"to":                               types.SetType{}.WithElementType(types.StringType),
+			"cc":                               types.SetType{}.WithElementType(types.StringType),
+			"bcc":                              types.SetType{}.WithElementType(types.StringType),
+			"channel_tags":                     types.SetType{}.WithElementType(types.StringType),
+			"topics":                           types.SetType{}.WithElementType(types.StringType),
+			"device_names":                     types.StringType,
+			"access_token":                     types.StringType,
+			"host":                             types.StringType,
+			"instance_name":                    types.StringType,
+			"name":                             types.StringType,
+			"implementation":                   types.StringType,
+			"config_contract":                  types.StringType,
+			"click_url":                        types.StringType,
+			"consumer_secret":                  types.StringType,
+			"path":                             types.StringType,
+			"arguments":                        types.StringType,
+			"consumer_key":                     types.StringType,
+			"chat_id":                          types.StringType,
+			"from":                             types.StringType,
+			"icon":                             types.StringType,
+			"password":                         types.StringType,
+			"event":                            types.StringType,
+			"key":                              types.StringType,
+			"refresh_token":                    types.StringType,
+			"web_hook_url":                     types.StringType,
+			"username":                         types.StringType,
+			"user_key":                         types.StringType,
+			"mention":                          types.StringType,
+			"avatar":                           types.StringType,
+			"url":                              types.StringType,
+			"token":                            types.StringType,
+			"sound":                            types.StringType,
+			"sign_in":                          types.StringType,
+			"server":                           types.StringType,
+			"sender_id":                        types.StringType,
+			"bot_token":                        types.StringType,
+			"sender_domain":                    types.StringType,
+			"map_to":                           types.StringType,
+			"map_from":                         types.StringType,
+			"channel":                          types.StringType,
+			"expires":                          types.StringType,
+			"server_url":                       types.StringType,
+			"access_token_secret":              types.StringType,
+			"api_key":                          types.StringType,
+			"app_token":                        types.StringType,
+			"author":                           types.StringType,
+			"auth_token":                       types.StringType,
+			"auth_user":                        types.StringType,
+			"display_time":                     types.Int64Type,
+			"priority":                         types.Int64Type,
+			"port":                             types.Int64Type,
+			"method":                           types.Int64Type,
+			"retry":                            types.Int64Type,
+			"expire":                           types.Int64Type,
+			"id":                               types.Int64Type,
+			"clean_library":                    types.BoolType,
+			"on_grab":                          types.BoolType,
+			"send_silently":                    types.BoolType,
+			"always_update":                    types.BoolType,
+			"on_health_issue":                  types.BoolType,
+			"direct_message":                   types.BoolType,
+			"require_encryption":               types.BoolType,
+			"use_ssl":                          types.BoolType,
+			"notify":                           types.BoolType,
+			"use_eu_endpoint":                  types.BoolType,
+			"update_library":                   types.BoolType,
+			"on_movie_file_delete_for_upgrade": types.BoolType,
+			"include_health_warnings":          types.BoolType,
+			"on_movie_file_delete":             types.BoolType,
+			"on_movie_delete":                  types.BoolType,
+			"on_application_update":            types.BoolType,
+			"on_rename":                        types.BoolType,
+			"on_upgrade":                       types.BoolType,
+			"on_download":                      types.BoolType,
+		})
 }
 
 func (r *NotificationResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -402,6 +490,7 @@ func (r *NotificationResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: "password.",
 				Optional:            true,
 				Computed:            true,
+				Sensitive:           true,
 			},
 			"path": schema.StringAttribute{
 				MarkdownDescription: "Path.",
