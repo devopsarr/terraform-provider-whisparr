@@ -6,6 +6,7 @@ import (
 
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -200,7 +201,7 @@ func (r *NotificationCustomScriptResource) Create(ctx context.Context, req resou
 	}
 
 	// Create new NotificationCustomScript
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.CreateNotification(ctx).NotificationResource(*request).Execute()
 	if err != nil {
@@ -211,7 +212,7 @@ func (r *NotificationCustomScriptResource) Create(ctx context.Context, req resou
 
 	tflog.Trace(ctx, "created "+notificationCustomScriptResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -235,7 +236,7 @@ func (r *NotificationCustomScriptResource) Read(ctx context.Context, req resourc
 
 	tflog.Trace(ctx, "read "+notificationCustomScriptResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -250,7 +251,7 @@ func (r *NotificationCustomScriptResource) Update(ctx context.Context, req resou
 	}
 
 	// Update NotificationCustomScript
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.UpdateNotification(ctx, strconv.Itoa(int(request.GetId()))).NotificationResource(*request).Execute()
 	if err != nil {
@@ -261,28 +262,28 @@ func (r *NotificationCustomScriptResource) Update(ctx context.Context, req resou
 
 	tflog.Trace(ctx, "updated "+notificationCustomScriptResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
 func (r *NotificationCustomScriptResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var notification *NotificationCustomScript
+	var ID int64
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &notification)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("id"), &ID)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Delete NotificationCustomScript current value
-	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(notification.ID.ValueInt64())).Execute()
+	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(ID)).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, notificationCustomScriptResourceName, err))
 
 		return
 	}
 
-	tflog.Trace(ctx, "deleted "+notificationCustomScriptResourceName+": "+strconv.Itoa(int(notification.ID.ValueInt64())))
+	tflog.Trace(ctx, "deleted "+notificationCustomScriptResourceName+": "+strconv.Itoa(int(ID)))
 	resp.State.RemoveResource(ctx)
 }
 
@@ -291,12 +292,12 @@ func (r *NotificationCustomScriptResource) ImportState(ctx context.Context, req 
 	tflog.Trace(ctx, "imported "+notificationCustomScriptResourceName+": "+req.ID)
 }
 
-func (n *NotificationCustomScript) write(ctx context.Context, notification *whisparr.NotificationResource) {
+func (n *NotificationCustomScript) write(ctx context.Context, notification *whisparr.NotificationResource, diags *diag.Diagnostics) {
 	genericNotification := n.toNotification()
-	genericNotification.write(ctx, notification)
+	genericNotification.write(ctx, notification, diags)
 	n.fromNotification(genericNotification)
 }
 
-func (n *NotificationCustomScript) read(ctx context.Context) *whisparr.NotificationResource {
-	return n.toNotification().read(ctx)
+func (n *NotificationCustomScript) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.NotificationResource {
+	return n.toNotification().read(ctx, diags)
 }

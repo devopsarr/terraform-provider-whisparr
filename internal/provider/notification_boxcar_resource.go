@@ -6,6 +6,7 @@ import (
 
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -185,7 +186,7 @@ func (r *NotificationBoxcarResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Create new NotificationBoxcar
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.CreateNotification(ctx).NotificationResource(*request).Execute()
 	if err != nil {
@@ -196,7 +197,7 @@ func (r *NotificationBoxcarResource) Create(ctx context.Context, req resource.Cr
 
 	tflog.Trace(ctx, "created "+notificationBoxcarResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -220,7 +221,7 @@ func (r *NotificationBoxcarResource) Read(ctx context.Context, req resource.Read
 
 	tflog.Trace(ctx, "read "+notificationBoxcarResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -235,7 +236,7 @@ func (r *NotificationBoxcarResource) Update(ctx context.Context, req resource.Up
 	}
 
 	// Update NotificationBoxcar
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.UpdateNotification(ctx, strconv.Itoa(int(request.GetId()))).NotificationResource(*request).Execute()
 	if err != nil {
@@ -246,28 +247,28 @@ func (r *NotificationBoxcarResource) Update(ctx context.Context, req resource.Up
 
 	tflog.Trace(ctx, "updated "+notificationBoxcarResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
 func (r *NotificationBoxcarResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var notification *NotificationBoxcar
+	var ID int64
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &notification)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("id"), &ID)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Delete NotificationBoxcar current value
-	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(notification.ID.ValueInt64())).Execute()
+	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(ID)).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, notificationBoxcarResourceName, err))
 
 		return
 	}
 
-	tflog.Trace(ctx, "deleted "+notificationBoxcarResourceName+": "+strconv.Itoa(int(notification.ID.ValueInt64())))
+	tflog.Trace(ctx, "deleted "+notificationBoxcarResourceName+": "+strconv.Itoa(int(ID)))
 	resp.State.RemoveResource(ctx)
 }
 
@@ -276,12 +277,12 @@ func (r *NotificationBoxcarResource) ImportState(ctx context.Context, req resour
 	tflog.Trace(ctx, "imported "+notificationBoxcarResourceName+": "+req.ID)
 }
 
-func (n *NotificationBoxcar) write(ctx context.Context, notification *whisparr.NotificationResource) {
+func (n *NotificationBoxcar) write(ctx context.Context, notification *whisparr.NotificationResource, diags *diag.Diagnostics) {
 	genericNotification := n.toNotification()
-	genericNotification.write(ctx, notification)
+	genericNotification.write(ctx, notification, diags)
 	n.fromNotification(genericNotification)
 }
 
-func (n *NotificationBoxcar) read(ctx context.Context) *whisparr.NotificationResource {
-	return n.toNotification().read(ctx)
+func (n *NotificationBoxcar) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.NotificationResource {
+	return n.toNotification().read(ctx, diags)
 }

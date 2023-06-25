@@ -6,6 +6,7 @@ import (
 
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -234,7 +235,7 @@ func (r *NotificationDiscordResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Create new NotificationDiscord
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.CreateNotification(ctx).NotificationResource(*request).Execute()
 	if err != nil {
@@ -245,7 +246,7 @@ func (r *NotificationDiscordResource) Create(ctx context.Context, req resource.C
 
 	tflog.Trace(ctx, "created "+notificationDiscordResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -269,7 +270,7 @@ func (r *NotificationDiscordResource) Read(ctx context.Context, req resource.Rea
 
 	tflog.Trace(ctx, "read "+notificationDiscordResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -284,7 +285,7 @@ func (r *NotificationDiscordResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Update NotificationDiscord
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.UpdateNotification(ctx, strconv.Itoa(int(request.GetId()))).NotificationResource(*request).Execute()
 	if err != nil {
@@ -295,28 +296,28 @@ func (r *NotificationDiscordResource) Update(ctx context.Context, req resource.U
 
 	tflog.Trace(ctx, "updated "+notificationDiscordResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
 func (r *NotificationDiscordResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var notification *NotificationDiscord
+	var ID int64
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &notification)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("id"), &ID)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Delete NotificationDiscord current value
-	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(notification.ID.ValueInt64())).Execute()
+	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(ID)).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, notificationDiscordResourceName, err))
 
 		return
 	}
 
-	tflog.Trace(ctx, "deleted "+notificationDiscordResourceName+": "+strconv.Itoa(int(notification.ID.ValueInt64())))
+	tflog.Trace(ctx, "deleted "+notificationDiscordResourceName+": "+strconv.Itoa(int(ID)))
 	resp.State.RemoveResource(ctx)
 }
 
@@ -325,12 +326,12 @@ func (r *NotificationDiscordResource) ImportState(ctx context.Context, req resou
 	tflog.Trace(ctx, "imported "+notificationDiscordResourceName+": "+req.ID)
 }
 
-func (n *NotificationDiscord) write(ctx context.Context, notification *whisparr.NotificationResource) {
+func (n *NotificationDiscord) write(ctx context.Context, notification *whisparr.NotificationResource, diags *diag.Diagnostics) {
 	genericNotification := n.toNotification()
-	genericNotification.write(ctx, notification)
+	genericNotification.write(ctx, notification, diags)
 	n.fromNotification(genericNotification)
 }
 
-func (n *NotificationDiscord) read(ctx context.Context) *whisparr.NotificationResource {
-	return n.toNotification().read(ctx)
+func (n *NotificationDiscord) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.NotificationResource {
+	return n.toNotification().read(ctx, diags)
 }

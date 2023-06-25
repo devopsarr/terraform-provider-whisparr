@@ -6,6 +6,7 @@ import (
 
 	"github.com/devopsarr/terraform-provider-whisparr/internal/helpers"
 	"github.com/devopsarr/whisparr-go/whisparr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -224,7 +225,7 @@ func (r *NotificationTwitterResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Create new NotificationTwitter
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.CreateNotification(ctx).NotificationResource(*request).Execute()
 	if err != nil {
@@ -235,7 +236,7 @@ func (r *NotificationTwitterResource) Create(ctx context.Context, req resource.C
 
 	tflog.Trace(ctx, "created "+notificationTwitterResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -259,7 +260,7 @@ func (r *NotificationTwitterResource) Read(ctx context.Context, req resource.Rea
 
 	tflog.Trace(ctx, "read "+notificationTwitterResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Map response body to resource schema attribute
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
@@ -274,7 +275,7 @@ func (r *NotificationTwitterResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Update NotificationTwitter
-	request := notification.read(ctx)
+	request := notification.read(ctx, &resp.Diagnostics)
 
 	response, _, err := r.client.NotificationApi.UpdateNotification(ctx, strconv.Itoa(int(request.GetId()))).NotificationResource(*request).Execute()
 	if err != nil {
@@ -285,28 +286,28 @@ func (r *NotificationTwitterResource) Update(ctx context.Context, req resource.U
 
 	tflog.Trace(ctx, "updated "+notificationTwitterResourceName+": "+strconv.Itoa(int(response.GetId())))
 	// Generate resource state struct
-	notification.write(ctx, response)
+	notification.write(ctx, response, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &notification)...)
 }
 
 func (r *NotificationTwitterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var notification *NotificationTwitter
+	var ID int64
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &notification)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("id"), &ID)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Delete NotificationTwitter current value
-	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(notification.ID.ValueInt64())).Execute()
+	_, err := r.client.NotificationApi.DeleteNotification(ctx, int32(ID)).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(helpers.ClientError, helpers.ParseClientError(helpers.Delete, notificationTwitterResourceName, err))
 
 		return
 	}
 
-	tflog.Trace(ctx, "deleted "+notificationTwitterResourceName+": "+strconv.Itoa(int(notification.ID.ValueInt64())))
+	tflog.Trace(ctx, "deleted "+notificationTwitterResourceName+": "+strconv.Itoa(int(ID)))
 	resp.State.RemoveResource(ctx)
 }
 
@@ -315,12 +316,12 @@ func (r *NotificationTwitterResource) ImportState(ctx context.Context, req resou
 	tflog.Trace(ctx, "imported "+notificationTwitterResourceName+": "+req.ID)
 }
 
-func (n *NotificationTwitter) write(ctx context.Context, notification *whisparr.NotificationResource) {
+func (n *NotificationTwitter) write(ctx context.Context, notification *whisparr.NotificationResource, diags *diag.Diagnostics) {
 	genericNotification := n.toNotification()
-	genericNotification.write(ctx, notification)
+	genericNotification.write(ctx, notification, diags)
 	n.fromNotification(genericNotification)
 }
 
-func (n *NotificationTwitter) read(ctx context.Context) *whisparr.NotificationResource {
-	return n.toNotification().read(ctx)
+func (n *NotificationTwitter) read(ctx context.Context, diags *diag.Diagnostics) *whisparr.NotificationResource {
+	return n.toNotification().read(ctx, diags)
 }
