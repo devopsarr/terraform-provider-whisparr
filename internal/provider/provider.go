@@ -32,12 +32,12 @@ type Whisparr struct {
 	URL    types.String `tfsdk:"url"`
 }
 
-func (p *WhisparrProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *WhisparrProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "whisparr"
 	resp.Version = p.version
 }
 
-func (p *WhisparrProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *WhisparrProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "The Whisparr provider is used to interact with any [Whisparr](https://whisparr.video/) installation. You must configure the provider with the proper credentials before you can use it. Use the left navigation to read about the available resources.",
 		Attributes: map[string]schema.Attribute{
@@ -129,7 +129,7 @@ func (p *WhisparrProvider) Configure(ctx context.Context, req provider.Configure
 	resp.ResourceData = client
 }
 
-func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *WhisparrProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		// Download Clients
 		NewDownloadClientConfigResource,
@@ -243,7 +243,7 @@ func (p *WhisparrProvider) Resources(ctx context.Context) []func() resource.Reso
 	}
 }
 
-func (p *WhisparrProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *WhisparrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		// Download Clients
 		NewDownloadClientConfigDataSource,

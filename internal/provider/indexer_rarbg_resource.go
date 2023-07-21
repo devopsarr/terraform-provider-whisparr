@@ -105,11 +105,11 @@ func (i *IndexerRarbg) fromIndexer(indexer *Indexer) {
 	i.Categories = indexer.Categories
 }
 
-func (r *IndexerRarbgResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *IndexerRarbgResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_" + indexerRarbgResourceName
 }
 
-func (r *IndexerRarbgResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *IndexerRarbgResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "<!-- subcategory:Indexers -->Indexer Rarbg resource.\nFor more information refer to [Indexer](https://wiki.servarr.com/whisparr/settings#indexers) and [Rarbg](https://wiki.servarr.com/whisparr/supported#rarbg).",
 		Attributes: map[string]schema.Attribute{
