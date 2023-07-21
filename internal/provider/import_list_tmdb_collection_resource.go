@@ -91,11 +91,11 @@ func (i *ImportListTMDBCollection) fromImportList(importList *ImportList) {
 	i.SearchOnAdd = importList.SearchOnAdd
 }
 
-func (r *ImportListTMDBCollectionResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *ImportListTMDBCollectionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_" + importListTMDBCollectionResourceName
 }
 
-func (r *ImportListTMDBCollectionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ImportListTMDBCollectionResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "<!-- subcategory:Import Lists -->Import List TMDB Collection resource.\nFor more information refer to [Import List](https://wiki.servarr.com/whisparr/settings#import-lists) and [TMDB Collection](https://wiki.servarr.com/whisparr/supported#tmdbcollectionimport).",
 		Attributes: map[string]schema.Attribute{

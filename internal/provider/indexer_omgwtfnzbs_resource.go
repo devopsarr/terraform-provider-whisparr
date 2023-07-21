@@ -89,11 +89,11 @@ func (i *IndexerOmgwtfnzbs) fromIndexer(indexer *Indexer) {
 	i.MultiLanguages = indexer.MultiLanguages
 }
 
-func (r *IndexerOmgwtfnzbsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *IndexerOmgwtfnzbsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_" + indexerOmgwtfnzbsResourceName
 }
 
-func (r *IndexerOmgwtfnzbsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *IndexerOmgwtfnzbsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "<!-- subcategory:Indexers -->Indexer Omgwtfnzbs resource.\nFor more information refer to [Indexer](https://wiki.servarr.com/whisparr/settings#indexers) and [Omgwtfnzbs](https://wiki.servarr.com/whisparr/supported#omgwtfnzbs).",
 		Attributes: map[string]schema.Attribute{
