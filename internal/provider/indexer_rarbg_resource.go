@@ -41,19 +41,19 @@ type IndexerRarbgResource struct {
 
 // IndexerRarbg describes the Rarbg indexer data model.
 type IndexerRarbg struct {
-	Tags                    types.Set     `tfsdk:"tags"`
+	SeedRatio               types.Float64 `tfsdk:"seed_ratio"`
 	MultiLanguages          types.Set     `tfsdk:"multi_languages"`
 	RequiredFlags           types.Set     `tfsdk:"required_flags"`
 	Categories              types.Set     `tfsdk:"categories"`
+	Tags                    types.Set     `tfsdk:"tags"`
 	Name                    types.String  `tfsdk:"name"`
-	CaptchaToken            types.String  `tfsdk:"captcha_token"`
 	BaseURL                 types.String  `tfsdk:"base_url"`
+	CaptchaToken            types.String  `tfsdk:"captcha_token"`
 	Priority                types.Int64   `tfsdk:"priority"`
 	ID                      types.Int64   `tfsdk:"id"`
 	DownloadClientID        types.Int64   `tfsdk:"download_client_id"`
 	MinimumSeeders          types.Int64   `tfsdk:"minimum_seeders"`
 	SeedTime                types.Int64   `tfsdk:"seed_time"`
-	SeedRatio               types.Float64 `tfsdk:"seed_ratio"`
 	EnableAutomaticSearch   types.Bool    `tfsdk:"enable_automatic_search"`
 	RankedOnly              types.Bool    `tfsdk:"ranked_only"`
 	EnableRss               types.Bool    `tfsdk:"enable_rss"`
