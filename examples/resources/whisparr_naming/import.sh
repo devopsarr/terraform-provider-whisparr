@@ -1,2 +1,2 @@
 # import does not need parameters
-terraform import whisparr_naming.example
+terraform import whisparr_naming.example ""

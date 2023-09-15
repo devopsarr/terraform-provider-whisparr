@@ -51,5 +51,5 @@ Import is supported using the following syntax:
 
 ```shell
 # import does not need parameters
-terraform import whisparr_indexer_config.example
+terraform import whisparr_indexer_config.example ""
 ```
