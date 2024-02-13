@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/devopsarr/terraform-provider-whisparr/compare/v1.2.0...v1.3.0) (2024-02-13)
+
+
+### Features
+
+* improve diagnostics part 1 ([58a3471](https://github.com/devopsarr/terraform-provider-whisparr/commit/58a34711417c42e1c3db9341f08099f8446f7f2b))
+* improve diagnostics part 2 ([4b51233](https://github.com/devopsarr/terraform-provider-whisparr/commit/4b5123381cdd99d26df886c19c5e2cd7e1a0b210))
+* use only ID for delete ([7118a6e](https://github.com/devopsarr/terraform-provider-whisparr/commit/7118a6ea48a00dbcac5c3fb30012bb6ee0be981f))
+
+
+### Bug Fixes
+
+* delete error message ([acf3de3](https://github.com/devopsarr/terraform-provider-whisparr/commit/acf3de3f7e255728f8cf8255abc7f26f0e60b96b))
+
 ## [1.2.0](https://github.com/devopsarr/terraform-provider-whisparr/compare/v1.1.0...v1.2.0) (2023-03-01)
 
 
