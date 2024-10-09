@@ -1,6 +1,8 @@
 module github.com/devopsarr/terraform-provider-whisparr
 
-go 1.19
+go 1.22.0
+
+toolchain go1.23.2
 
 require (
 	github.com/devopsarr/whisparr-go v0.1.1
@@ -12,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.5.1
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
+	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 )
 
 require (
@@ -69,7 +71,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/zclconf/go-cty v1.14.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/mod v0.15.0 // indirect
+	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
