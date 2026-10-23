@@ -1,6 +1,6 @@
 module github.com/devopsarr/terraform-provider-whisparr
 
-go 1.19
+go 1.23.0
 
 require (
 	github.com/devopsarr/whisparr-go v0.1.1
@@ -71,7 +71,7 @@ require (
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/oauth2 v0.11.0 // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
